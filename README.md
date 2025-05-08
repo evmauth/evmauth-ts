@@ -1,6 +1,5 @@
 # EVMAuth TypeScript SDK
 
-![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgithub.com%2Fevmauth%2Fevmauth-ts%2Fblob%2Fmain%2Fsdk%2Ftypescript%2Fpackage.json&query=%24.version&prefix=v&label=EVMAuth)
 ![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgithub.com%2Fevmauth%2Fevmauth-ts%2Fblob%2Fmain%2Fsdk%2Ftypescript%2Fpackage.json&query=%24.devDependencies.typescript&prefix=v&label=TypeScript)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/evmauth/evmauth-ts/test.yml?label=Tests)
 
