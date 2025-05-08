@@ -1,6 +1,7 @@
 # EVMAuth TypeScript SDK
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/evmauth/evmauth-ts/test.yml?label=Tests)
+![GitHub Org's stars](https://img.shields.io/github/stars/evmauth)
 
 A TypeScript SDK for interacting with [EVMAuth contracts](https://github.com/evmauth/evmauth-core) deployed to Ethereum, Radius, and other EVM-compatible networks.
 

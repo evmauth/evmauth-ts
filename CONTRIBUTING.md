@@ -62,7 +62,7 @@ Types:
 If you have questions:
 
 1. Check existing issues
-2. Create a new issue with `question` label
+2. Create a new issue with the `question` label
 3. Ask in your PR if you're working on code
 
 Thank you for your contributions!
