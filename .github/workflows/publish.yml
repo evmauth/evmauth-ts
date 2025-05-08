@@ -1,0 +1,68 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish'
+        required: true
+        default: 'v0.0.0'
+
+jobs:
+  publish:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Required for provenance
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          # Extract version from v*.*.* format
+          TAG=${{ github.ref_name }}
+          VERSION=${TAG#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: '9'
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install
+        env:
+          CI: true
+
+      - name: Run static analysis
+        run: pnpm check
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Update version in package.json
+        run: |
+          # Use jq to update the version in package.json
+          jq '.version = "${{ steps.extract_version.outputs.version }}"' package.json > package.json.tmp
+          mv package.json.tmp package.json
+
+      - name: Build package
+        run: pnpm build
+
+      - name: Publish to NPM
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
