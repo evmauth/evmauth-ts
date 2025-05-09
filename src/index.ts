@@ -1,7 +1,7 @@
-export { EVMAuth } from './evmauth';
+export { EVMAuth } from './evmauth.js';
 export type {
     BaseMetadata,
     Group,
     Signer,
     TokenMetadata,
-} from './types';
+} from './types.js';

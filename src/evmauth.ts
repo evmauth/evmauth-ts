@@ -1,7 +1,7 @@
 import type { ContractTransactionResponse, JsonRpcProvider } from 'ethers';
 import { Contract } from 'ethers';
-import ABI from './abi.json';
-import type { BaseMetadata, Group, Signer, TokenMetadata } from './types';
+import ABI from './abi.json' with { type: 'json' };
+import type { BaseMetadata, Group, Signer, TokenMetadata } from './types.js';
 
 /**
  * SDK for interacting with EVMAuth smart contracts
