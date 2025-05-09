@@ -41,7 +41,7 @@ pnpm start
 ```sh
 curl -X GET http://localhost:3000/
 curl -X GET http://localhost:3000/paid-content
-curl -X GET http://localhost:3000/paid-content?address=0x...
+curl -X GET "http://localhost:3000/paid-content?address=0x..."
 ```
 
 Replace `0x...` with the address of the user you want to check for authorization. If that address owns token ID `0`,
