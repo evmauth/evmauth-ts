@@ -35,7 +35,11 @@ export async function setTokenMetadata(tokenConfig: TokenMetadata[]): Promise<vo
     for (let tokenId = 0; tokenId < tokenConfig.length; tokenId++) {
         if (
             currentConfig.length > tokenId &&
-            JSON.stringify(currentConfig[tokenId]) === JSON.stringify(tokenConfig[tokenId])
+            currentConfig[tokenId].active === tokenConfig[tokenId].active &&
+            currentConfig[tokenId].burnable === tokenConfig[tokenId].burnable &&
+            currentConfig[tokenId].transferable === tokenConfig[tokenId].transferable &&
+            currentConfig[tokenId].price === tokenConfig[tokenId].price &&
+            currentConfig[tokenId].ttl === tokenConfig[tokenId].ttl
         ) {
             continue; // No changes needed
         }
