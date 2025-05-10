@@ -31,6 +31,7 @@ app.get('/paid-content', paymentRequired(tokenId, tokenAmount), (_req: Request, 
 async function startServer(): Promise<void> {
     await setTokenMetadata([
         {
+            id: BigInt(0),
             active: true,
             burnable: true,
             transferable: true,
