@@ -24,11 +24,7 @@ app.get('/paid-content', paymentRequired(tokenId, tokenAmount), (_req: Request, 
     });
 });
 
-/**
- * Set EVMAuth token metadata and start the server.
- * @returns {Promise<void>}
- */
-async function startServer(): Promise<void> {
+app.listen(port, async () => {
     await setTokenMetadata([
         {
             id: BigInt(0),
@@ -40,11 +36,5 @@ async function startServer(): Promise<void> {
         },
     ]);
 
-    app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    });
-}
-
-startServer().catch((error) => {
-    console.error('Error starting server:', error);
+    console.log(`Server is running on port ${port}`);
 });
