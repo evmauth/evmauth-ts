@@ -26,6 +26,7 @@ vi.mock('ethers', async () => {
             renounceRole: vi.fn().mockResolvedValue({ hash: '0xdef' }),
             getRoleAdmin: vi.fn().mockResolvedValue('0x00'),
             metadataOf: vi.fn().mockResolvedValue({
+                id: BigInt(0),
                 active: true,
                 burnable: true,
                 transferable: true,
@@ -34,6 +35,7 @@ vi.mock('ethers', async () => {
             }),
             metadataOfAll: vi.fn().mockResolvedValue([
                 {
+                    id: BigInt(0),
                     active: true,
                     burnable: true,
                     transferable: true,
@@ -43,6 +45,7 @@ vi.mock('ethers', async () => {
             ]),
             metadataOfBatch: vi.fn().mockResolvedValue([
                 {
+                    id: BigInt(0),
                     active: true,
                     burnable: true,
                     transferable: true,
@@ -51,12 +54,14 @@ vi.mock('ethers', async () => {
                 },
             ]),
             baseMetadataOf: vi.fn().mockResolvedValue({
+                id: BigInt(0),
                 active: true,
                 burnable: true,
                 transferable: true,
             }),
             baseMetadataOfAll: vi.fn().mockResolvedValue([
                 {
+                    id: BigInt(0),
                     active: true,
                     burnable: true,
                     transferable: true,
@@ -64,6 +69,7 @@ vi.mock('ethers', async () => {
             ]),
             baseMetadataOfBatch: vi.fn().mockResolvedValue([
                 {
+                    id: BigInt(0),
                     active: true,
                     burnable: true,
                     transferable: true,
@@ -321,6 +327,7 @@ describe('EVMAuth', () => {
         it('should get metadata for a token', async () => {
             const metadata = await evmAuth.metadataOf(1);
             expect(metadata).toEqual({
+                id: BigInt(0),
                 active: true,
                 burnable: true,
                 transferable: true,
@@ -333,6 +340,7 @@ describe('EVMAuth', () => {
             const metadataAll = await evmAuth.metadataOfAll();
             expect(metadataAll).toEqual([
                 {
+                    id: BigInt(0),
                     active: true,
                     burnable: true,
                     transferable: true,
@@ -346,6 +354,7 @@ describe('EVMAuth', () => {
             const metadataBatch = await evmAuth.metadataOfBatch([1, 2]);
             expect(metadataBatch).toEqual([
                 {
+                    id: BigInt(0),
                     active: true,
                     burnable: true,
                     transferable: true,
@@ -358,6 +367,7 @@ describe('EVMAuth', () => {
         it('should get base metadata for a token', async () => {
             const baseMetadata = await evmAuth.baseMetadataOf(1);
             expect(baseMetadata).toEqual({
+                id: BigInt(0),
                 active: true,
                 burnable: true,
                 transferable: true,
@@ -368,6 +378,7 @@ describe('EVMAuth', () => {
             const baseMetadataAll = await evmAuth.baseMetadataOfAll();
             expect(baseMetadataAll).toEqual([
                 {
+                    id: BigInt(0),
                     active: true,
                     burnable: true,
                     transferable: true,
@@ -379,6 +390,7 @@ describe('EVMAuth', () => {
             const baseMetadataBatch = await evmAuth.baseMetadataOfBatch([1, 2]);
             expect(baseMetadataBatch).toEqual([
                 {
+                    id: BigInt(0),
                     active: true,
                     burnable: true,
                     transferable: true,

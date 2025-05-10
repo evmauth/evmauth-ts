@@ -20,38 +20,39 @@ export const evmAuthSigner: EVMAuth | null = privateKey ? auth.connect(signer) :
 
 /**
  * Initialize the token metadata, updating only if necessary.
- * @param {TokenMetadata[]} tokenConfig - Array of token metadata objects.
+ * @param {TokenMetadata[]} settings - Array of token metadata objects.
  * @returns {Promise<void>}
  */
-export async function setTokenMetadata(tokenConfig: TokenMetadata[]): Promise<void> {
+export async function setTokenMetadata(settings: TokenMetadata[]): Promise<void> {
     if (!evmAuthSigner) {
         console.warn('Signer is not initialized. Cannot set token metadata.');
         return;
     }
 
-    const currentConfig: TokenMetadata[] = await auth.metadataOfAll();
+    const currentSettings: TokenMetadata[] = await auth.metadataOfAll();
     const promises: Promise<ethers.ContractTransactionResponse>[] = [];
 
-    for (let tokenId = 0; tokenId < tokenConfig.length; tokenId++) {
+    for (const token of settings) {
+        const current: TokenMetadata | undefined = currentSettings.find((t: TokenMetadata) => t.id === token.id);
         if (
-            currentConfig.length > tokenId &&
-            currentConfig[tokenId].active === tokenConfig[tokenId].active &&
-            currentConfig[tokenId].burnable === tokenConfig[tokenId].burnable &&
-            currentConfig[tokenId].transferable === tokenConfig[tokenId].transferable &&
-            currentConfig[tokenId].price === tokenConfig[tokenId].price &&
-            currentConfig[tokenId].ttl === tokenConfig[tokenId].ttl
+            current &&
+            current.active === token.active &&
+            current.burnable === token.burnable &&
+            current.transferable === token.transferable &&
+            current.price === token.price &&
+            current.ttl === token.ttl
         ) {
             continue; // No changes needed
         }
 
         promises.push(
             evmAuthSigner.setMetadata(
-                tokenId,
-                tokenConfig[tokenId].active,
-                tokenConfig[tokenId].burnable,
-                tokenConfig[tokenId].transferable,
-                tokenConfig[tokenId].price,
-                tokenConfig[tokenId].ttl
+                token.id,
+                token.active,
+                token.burnable,
+                token.transferable,
+                token.price,
+                token.ttl
             )
         );
     }

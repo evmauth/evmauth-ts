@@ -75,7 +75,7 @@ const evmAuthSigner = evmAuth.connect(signer);
 // Get token metadata
 const metadata = await evmAuth.metadataOf(tokenId);
 console.log(metadata);
-// { active: true, burnable: true, transferable: false, price: 100000000000000000n, ttl: 2592000n }
+// { id: 0n, active: true, burnable: true, transferable: false, price: 100000000000000000n, ttl: 2592000n }
 
 // Check token status
 const isActive = await evmAuth.active(tokenId);

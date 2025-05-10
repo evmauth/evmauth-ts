@@ -1,22 +1,24 @@
 import type { JsonRpcProvider, Wallet } from 'ethers';
 
 export interface TokenMetadata {
+    id: number | bigint;
     active: boolean;
     burnable: boolean;
     transferable: boolean;
-    price: bigint;
-    ttl: bigint;
+    price: number | bigint;
+    ttl: number | bigint;
 }
 
 export interface BaseMetadata {
+    id: number | bigint;
     active: boolean;
     burnable: boolean;
     transferable: boolean;
 }
 
 export interface Group {
-    balance: bigint;
-    expiresAt: bigint;
+    balance: number | bigint;
+    expiresAt: number | bigint;
 }
 
 export type Signer =
