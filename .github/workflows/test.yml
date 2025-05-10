@@ -23,6 +23,10 @@ on:
       - 'vitest.config.ts'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   test:
     name: Run Tests
