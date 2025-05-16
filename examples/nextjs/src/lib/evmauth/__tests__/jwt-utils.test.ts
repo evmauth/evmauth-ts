@@ -215,7 +215,7 @@ describe('JWT Utilities', () => {
         it('should extract token from cookies', () => {
             const token = 'test.jwt.token';
             const headers = new Headers({
-                Cookie: `authToken=${token}; otherCookie=value`,
+                Cookie: `evmauth_token=${token}; otherCookie=value`,
             });
 
             const request = new Request('https://example.com', { headers });
@@ -228,7 +228,7 @@ describe('JWT Utilities', () => {
             const token = 'test.jwt.token+with/special=chars';
             const encodedToken = encodeURIComponent(token);
             const headers = new Headers({
-                Cookie: `authToken=${encodedToken}; otherCookie=value`,
+                Cookie: `evmauth_token=${encodedToken}; otherCookie=value`,
             });
 
             const request = new Request('https://example.com', { headers });
@@ -249,7 +249,7 @@ describe('JWT Utilities', () => {
             const cookieToken = 'cookie.jwt.token';
             const headers = new Headers({
                 Authorization: `Bearer ${headerToken}`,
-                Cookie: `authToken=${cookieToken}`,
+                Cookie: `evmauth_token=${cookieToken}`,
             });
 
             const request = new Request('https://example.com', { headers });

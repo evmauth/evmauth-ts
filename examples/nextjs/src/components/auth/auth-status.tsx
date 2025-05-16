@@ -74,18 +74,11 @@ export default function AuthStatus() {
                 console.error('Error checking auth status API:', statusError);
             }
 
-            // Check for tokens in cookies as a last resort
-            let token = document.cookie
+            // Check for token in cookies as a last resort
+            const token = document.cookie
                 .split('; ')
                 .find((row) => row.startsWith('evmauth_token='))
                 ?.split('=')[1];
-
-            if (!token) {
-                token = document.cookie
-                    .split('; ')
-                    .find((row) => row.startsWith('authToken='))
-                    ?.split('=')[1];
-            }
 
             if (!token) {
                 setAuthState({
