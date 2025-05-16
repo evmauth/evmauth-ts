@@ -97,12 +97,6 @@ export function extractAuthToken(req: Request): string | null {
         if (evmAuthTokenMatch?.[1]) {
             return decodeURIComponent(evmAuthTokenMatch[1]);
         }
-
-        // For backward compatibility, also check authToken
-        const oldTokenMatch = cookies.match(/(?:^|;\s*)authToken=([^;]*)/);
-        if (oldTokenMatch?.[1]) {
-            return decodeURIComponent(oldTokenMatch[1]);
-        }
     }
 
     // Check for custom header that might be set by client-side code

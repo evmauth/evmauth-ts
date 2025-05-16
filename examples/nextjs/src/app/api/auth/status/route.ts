@@ -15,7 +15,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     try {
         // Debug information
         const cookies = request.headers.get('Cookie') || '';
-        const hasCookie = cookies.includes('evmauth_token') || cookies.includes('authToken');
+        const hasCookie = cookies.includes('evmauth_token');
 
         // Auth token extraction
         const authToken = extractAuthToken(request);

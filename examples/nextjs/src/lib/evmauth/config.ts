@@ -19,7 +19,9 @@ import type { TokenRequirement } from './types';
  */
 export const ENV = {
     get EVMAUTH_CONTRACT_ADDRESS() {
-        return process.env.EVMAUTH_CONTRACT_ADDRESS || process.env.NEXT_PUBLIC_EVMAUTH_CONTRACT_ADDRESS;
+        return (
+            process.env.EVMAUTH_CONTRACT_ADDRESS || process.env.NEXT_PUBLIC_EVMAUTH_CONTRACT_ADDRESS
+        );
     },
     get EVMAUTH_RPC_URL() {
         return process.env.EVMAUTH_RPC_URL || process.env.NEXT_PUBLIC_EVMAUTH_RPC_URL;

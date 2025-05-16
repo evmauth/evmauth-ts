@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     try {
         // Initialize blockchain service on every request to ensure latest environment variables
         try {
-            // Validate configuration 
+            // Validate configuration
             const configValidation = validateConfig();
             if (!configValidation.isValid) {
                 console.error('Invalid EVMAuth configuration:', configValidation.errors);

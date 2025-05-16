@@ -15,7 +15,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         const originalFetch = window.fetch;
         window.fetch = async (input, init) => {
             // Get the token from localStorage
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('evmauth_token');
 
             // Create a new init object to avoid reassigning the parameter
             let newInit = init;
