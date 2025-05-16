@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server';
 
 /**
- * GET /api/protected/premium - Premium protected API endpoint
+ * Premium Protected API Route
  *
- * This endpoint requires the premium token (token ID 1)
- * as configured in the TOKEN_REQUIREMENTS in src/lib/evmauth/config.ts
+ * This endpoint is protected by the middleware in src/middleware.ts
+ * It requires Token #1 (Premium) to access this route.
  *
- * @returns Premium protected data
+ * The middleware validates that the provided wallet address has the required premium token balance.
+ * If successful, the wallet address is passed in the x-wallet-address header.
+ *
+ * NOTE: The wallet address is passed from the middleware after token validation.
+ * In a production application, you would implement proper authentication
+ * to ensure the user owns this wallet address.
  */
 export async function GET(req: Request): Promise<NextResponse> {
     // Get wallet address from request header (set by middleware)
@@ -14,18 +19,13 @@ export async function GET(req: Request): Promise<NextResponse> {
 
     return NextResponse.json({
         success: true,
-        message: 'This is premium protected data that requires token ID 1',
+        message: 'This is premium protected content that requires premium token ownership',
         walletAddress,
         timestamp: new Date().toISOString(),
         data: {
-            secretValue: 'This data is only accessible to users with premium tokens',
-            accessLevel: 'premium',
-            additionalFeatures: [
-                'Higher rate limits',
-                'Priority processing',
-                'Advanced analytics',
-                'Extended data retention',
-            ],
+            content: 'This premium data is only accessible to users with premium tokens',
+            tokenType: 'premium',
+            features: ['Exclusive premium content', 'Higher rate limits', 'Priority support'],
         },
     });
 }

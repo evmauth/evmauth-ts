@@ -4,7 +4,8 @@
 const nextConfig = {
     reactStrictMode: true,
     experimental: {
-        serverActions: true,
+        // Next.js 15 supports server actions by default, so we don't need to enable them explicitly
+        // serverActions: true,
     },
     // Prevent server middleware from running in static export
     // But enable it during development and server-based deployments
@@ -12,4 +13,4 @@ const nextConfig = {
     skipTrailingSlashRedirect: true,
 };
 
-export default nextConfig;
+module.exports = nextConfig;
