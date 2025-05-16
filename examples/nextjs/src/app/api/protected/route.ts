@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server';
 
 /**
- * GET /api/protected - Protected API endpoint that requires authentication
+ * Protected API Route
  *
- * Note: This endpoint is protected by the middleware in src/middleware.ts
- * If the request reaches this handler, it means the user is authenticated
- * and has the required tokens.
+ * This endpoint is protected by the middleware in src/middleware.ts
+ * It requires token ownership to access.
  *
- * @returns Protected data
+ * The middleware validates that the provided wallet address has the required token balance.
+ * If successful, the wallet address is passed in the x-wallet-address header.
+ *
+ * NOTE: The wallet address is passed from the middleware after token validation.
+ * In a production application, you would implement proper authentication
+ * to ensure the user owns this wallet address.
  */
 export async function GET(req: Request): Promise<NextResponse> {
     // Get wallet address from request header (set by middleware)
@@ -15,13 +19,12 @@ export async function GET(req: Request): Promise<NextResponse> {
 
     return NextResponse.json({
         success: true,
-        message: 'This is protected data that requires authentication and token ownership',
+        message: 'This is protected content that requires token ownership',
         walletAddress,
         timestamp: new Date().toISOString(),
         data: {
-            secretValue:
-                'This data is only accessible to authenticated users with the required tokens',
-            accessLevel: 'basic',
+            content: 'This data is only accessible to users with the required tokens',
+            tokenType: 'basic',
         },
     });
 }
@@ -40,7 +43,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         // Parse request body
         const body = await req.json();
 
-        // Process the submitted data (in a real app, you would store it in a database)
+        // Process the submitted data
         return NextResponse.json({
             success: true,
             message: 'Data submitted successfully',
