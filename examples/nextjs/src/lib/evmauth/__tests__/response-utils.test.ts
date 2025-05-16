@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { logger } from '../logger';
-import { createPaymentRequiredResponse, createErrorResponse } from '../response-utils';
+import { createErrorResponse, createPaymentRequiredResponse } from '../response-utils';
 
 // Mock dependencies
 vi.mock('next/server', () => ({
@@ -21,9 +21,8 @@ vi.mock('../logger', () => ({
     },
 }));
 
-// Mock environment variables
-vi.stubEnv('NEXT_PUBLIC_CONTRACT_ADDRESS', '0xTestContractAddress');
-vi.stubEnv('NEXT_PUBLIC_NETWORK_ID', '1223953');
+// Environment variables are set in test-setup.ts
+// No need to stub them here as they're already set in the test setup
 
 describe('Response Utilities', () => {
     beforeEach(() => {

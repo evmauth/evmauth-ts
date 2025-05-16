@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+    extractWalletAddress,
     getTokenRequirementForPath,
     isProtectedPath,
     isStaticPath,
-    extractWalletAddress,
 } from '../middleware-helpers';
 
 describe('Middleware Helpers', () => {
