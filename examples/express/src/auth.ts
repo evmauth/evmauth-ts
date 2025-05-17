@@ -33,7 +33,9 @@ export async function setTokenMetadata(settings: TokenMetadata[]): Promise<void>
     const promises: Promise<ethers.ContractTransactionResponse>[] = [];
 
     for (const token of settings) {
-        const current: TokenMetadata | undefined = currentSettings.find((t: TokenMetadata) => t.id === token.id);
+        const current: TokenMetadata | undefined = currentSettings.find(
+            (t: TokenMetadata) => t.id === token.id
+        );
         if (
             current &&
             current.active === token.active &&
