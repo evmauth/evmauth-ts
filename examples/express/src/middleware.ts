@@ -1,13 +1,13 @@
 import { ethers } from 'ethers';
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { type RouteConfig, paymentMiddleware } from 'x402-express';
-import { auth } from './auth.js';
+import { auth, authSigner } from './auth.js';
 import { contractAddress, networkId } from './config.js';
 
 type Address = `0x${string}`;
 
 /**
- * Middleware to require direct purchase of a token via the EVMAuth contract.
+ * Middleware to require purchase of a token via the EVMAuth contract, or via x402 if routeConfig is provided.
  *
  * @param {number} tokenId - The ID of the token to check.
  * @param {number} amount - The required amount of tokens.
@@ -34,10 +34,24 @@ export function paymentRequired(
         }
 
         // If a routeConfig is provided, use the x402 middleware to inform the user that payment is required.
-        if (routeConfig) {
+        if (routeConfig && authSigner !== null) {
             const payTo: Address = (await auth.wallet()) as Address;
             const route = req.path;
-            return paymentMiddleware(payTo, { [route]: routeConfig })(req, res, next);
+            const issueTokens: RequestHandler = async (
+                _req: Request,
+                _res: Response,
+                _next: NextFunction
+            ): Promise<void> => {
+                if (authSigner !== null) {
+                    await authSigner.issue(walletAddress, tokenId, amount);
+                    next();
+                }
+            };
+            return paymentMiddleware(payTo, { [route]: routeConfig })(
+                req,
+                res,
+                issueTokens as NextFunction
+            );
         }
 
         // If no routeConfig is provided, use a custom 402 response to inform the user that payment is required.
