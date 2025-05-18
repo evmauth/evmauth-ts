@@ -43,3 +43,6 @@ next-env.d.ts
 
 # JetBrains IDEs
 .idea/
+
+# Claude
+.claude/
