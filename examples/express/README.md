@@ -57,5 +57,14 @@ Note that, for demonstration purposes, we are passing the user's wallet address 
 In a real-world application, you would authenticate the user to verify they own the wallet address, using
 [EIP-712] message signing, then issue a JWT or session cookie containing the wallet address.
 
+Check out our [@evmauth/eip712-authn] library for a complete implementation of [EIP-712] authentication.
 
+## x402 Support
+
+EVMAuth can be used with the [x402]. This example includes a simple implementation, using the [x402-express] package.
+To see it in action, start the server and visit http://localhost:3000/paid-content-x402 in your browser.
+
+[@evmauth/eip712-authn]: https://www.npmjs.com/package/@evmauth/eip712-authn
 [EIP-712]: https://eips.ethereum.org/EIPS/eip-712
+[x402]: https://x402.org
+[x402-express]: https://www.npmjs.com/package/x402-express

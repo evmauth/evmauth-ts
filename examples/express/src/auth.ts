@@ -16,7 +16,7 @@ export const auth: EVMAuth = new EVMAuth(contractAddress, provider);
  * EVMAuth instance for interacting with the smart contract (read/write).
  * @type {EVMAuth}
  */
-export const evmAuthSigner: EVMAuth | null = privateKey ? auth.connect(signer) : null;
+export const authSigner: EVMAuth | null = privateKey ? auth.connect(signer) : null;
 
 /**
  * Initialize the token metadata, updating only if necessary.
@@ -24,7 +24,7 @@ export const evmAuthSigner: EVMAuth | null = privateKey ? auth.connect(signer) :
  * @returns {Promise<void>}
  */
 export async function setTokenMetadata(settings: TokenMetadata[]): Promise<void> {
-    if (!evmAuthSigner) {
+    if (!authSigner) {
         console.warn('Signer is not initialized. Cannot set token metadata.');
         return;
     }
@@ -33,7 +33,9 @@ export async function setTokenMetadata(settings: TokenMetadata[]): Promise<void>
     const promises: Promise<ethers.ContractTransactionResponse>[] = [];
 
     for (const token of settings) {
-        const current: TokenMetadata | undefined = currentSettings.find((t: TokenMetadata) => t.id === token.id);
+        const current: TokenMetadata | undefined = currentSettings.find(
+            (t: TokenMetadata) => t.id === token.id
+        );
         if (
             current &&
             current.active === token.active &&
@@ -46,7 +48,7 @@ export async function setTokenMetadata(settings: TokenMetadata[]): Promise<void>
         }
 
         promises.push(
-            evmAuthSigner.setMetadata(
+            authSigner.setMetadata(
                 token.id,
                 token.active,
                 token.burnable,
