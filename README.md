@@ -116,24 +116,18 @@ await evmAuth.safeTransferFrom(fromAddress, toAddress, tokenId, amount);
 ### Role Management
 
 ```typescript
-// Get role constants
-const minterRole = await evmAuth.TOKEN_MINTER_ROLE();
-const burnerRole = await evmAuth.TOKEN_BURNER_ROLE();
-const managerRole = await evmAuth.TOKEN_MANAGER_ROLE();
-const blacklistRole = await evmAuth.BLACKLIST_MANAGER_ROLE();
-const financeRole = await evmAuth.FINANCE_MANAGER_ROLE();
-const adminRole = await evmAuth.DEFAULT_ADMIN_ROLE();
+import { roles } from 'evmauth';
 
 // Check roles
-const hasMinterRole = await evmAuth.hasRole(minterRole, accountAddress);
+const hasMinterRole = await evmAuth.hasRole(roles.tokenMinter, accountAddress);
 
 // Grant roles (requires admin role)
-await evmAuth.grantRole(minterRole, accountAddress);
-await evmAuth.grantRoles([minterRole, burnerRole], accountAddress);
+await evmAuth.grantRole(roles.tokenMinter, accountAddress);
+await evmAuth.grantRoles([roles.tokenMinter, roles.tokenBurner], accountAddress);
 
 // Revoke roles
-await evmAuth.revokeRole(minterRole, accountAddress);
-await evmAuth.revokeRoles([minterRole, burnerRole], accountAddress);
+await evmAuth.revokeRole(roles.tokenMinter, accountAddress);
+await evmAuth.revokeRoles([roles.tokenMinter, roles.tokenBurner], accountAddress);
 ```
 
 ### Blacklist Management
@@ -193,7 +187,7 @@ await evmAuth.acceptDefaultAdminTransfer();
 const wallet = await evmAuth.wallet();
 await evmAuth.setWallet(newWalletAddress);
 
-// Withdraw funds
+// Withdraw funds accidentally sent to the contract address
 await evmAuth.withdraw();
 ```
 
