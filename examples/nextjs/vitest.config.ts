@@ -23,6 +23,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': resolve(__dirname, './src'),
+            'evmauth': resolve(__dirname, '../../src/index.ts'),
         },
     },
 });
