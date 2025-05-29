@@ -1,9 +1,9 @@
 import type { ContractTransactionResponse, JsonRpcProvider } from 'ethers';
 import { Contract } from 'ethers';
 import ABI from './abi.json' with { type: 'json' };
-import type { BaseMetadata, Group, Signer, TokenMetadata } from './types.js';
+import type { BaseMetadata, EVMAuthRole, Group, Signer, TokenMetadata } from './types.js';
 
-export const roles = {
+export const roles: Record<string, EVMAuthRole> = {
     blacklistManager: 'BLACKLIST_MANAGER_ROLE',
     defaultAdmin: 'DEFAULT_ADMIN_ROLE',
     financeManager: 'FINANCE_MANAGER_ROLE',

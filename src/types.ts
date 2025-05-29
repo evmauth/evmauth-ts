@@ -1,5 +1,13 @@
 import type { JsonRpcProvider, Wallet } from 'ethers';
 
+export type EVMAuthRole =
+    | 'BLACKLIST_MANAGER_ROLE'
+    | 'DEFAULT_ADMIN_ROLE'
+    | 'FINANCE_MANAGER_ROLE'
+    | 'TOKEN_BURNER_ROLE'
+    | 'TOKEN_MANAGER_ROLE'
+    | 'TOKEN_MINTER_ROLE';
+
 export interface TokenMetadata {
     id: number | bigint;
     active: boolean;
