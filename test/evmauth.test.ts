@@ -2,7 +2,7 @@ import type { JsonRpcProvider } from 'ethers';
 import { Contract } from 'ethers';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Signer } from '../src';
-import { EVMAuth } from '../src';
+import { EVMAuth, roles } from '../src';
 
 // Mock the ethers Contract class and other dependencies
 vi.mock('ethers', async () => {
@@ -163,6 +163,17 @@ vi.mock('ethers', async () => {
             off: vi.fn().mockImplementation(() => {}),
         })),
     };
+});
+
+describe('roles', () => {
+    it('should have the correct role values', () => {
+        expect(roles.blacklistManager).toBe('BLACKLIST_MANAGER_ROLE');
+        expect(roles.defaultAdmin).toBe('DEFAULT_ADMIN_ROLE');
+        expect(roles.financeManager).toBe('FINANCE_MANAGER_ROLE');
+        expect(roles.tokenManager).toBe('TOKEN_MANAGER_ROLE');
+        expect(roles.tokenMinter).toBe('TOKEN_MINTER_ROLE');
+        expect(roles.tokenBurner).toBe('TOKEN_BURNER_ROLE');
+    });
 });
 
 describe('EVMAuth', () => {
