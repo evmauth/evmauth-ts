@@ -17,7 +17,7 @@ import { createPaymentRequiredResponse } from './lib/evmauth/response-utils';
 // Configuration
 // Using hardcoded values for middleware as it may not have access to environment variables at runtime
 const contractAddress = '0x1943B30909692B6539dD888D8dc0Ad7aF070e01A'; // From NEXT_PUBLIC_EVMAUTH_CONTRACT_ADDRESS
-const rpcUrl = 'https://rpc.testnet.tryradi.us/03e50e44eff27b9608b2820a56cc71a18c666e821d6e14a2'; // From NEXT_PUBLIC_EVMAUTH_RPC_URL
+const rpcUrl = 'https://rpc.testnet.radiustech.xyz'; // From NEXT_PUBLIC_EVMAUTH_RPC_URL
 
 // Initialize EVMAuth
 const provider = new ethers.JsonRpcProvider(rpcUrl);
