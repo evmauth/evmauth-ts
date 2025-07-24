@@ -35,7 +35,7 @@ These structured templates help us gather the information we need to address you
 2. Clone your fork: `git clone https://github.com/your-username/evmauth-ts.git`
 3. Create a new branch: `git checkout -b my-feature`
 4. Make your changes
-5. Run `forge fmt` and `forge test` to ensure code is formatted and tests pass
+5. Run `pnpm check` and `pnpm test` to ensure code is formatted and tests pass
 6. Push to your fork and submit a pull request
 
 ## Commit Messages
@@ -91,9 +91,6 @@ If you have questions:
 
 Thank you for your contributions!
 
-[ERC-1155]: https://eips.ethereum.org/EIPS/eip-1155
-[ERC-2470]: https://eips.ethereum.org/EIPS/eip-2470
-
 ## License
 
-The **EVMAuth** smart contract is released under the MIT License. See the [LICENSE](LICENSE) file for details.
+The **EVMAuth** TypeScript SDK is released under the MIT License. See the [LICENSE](LICENSE) file for details.
