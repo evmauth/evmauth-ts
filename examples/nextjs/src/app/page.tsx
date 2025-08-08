@@ -151,7 +151,7 @@ export default function Home() {
                         type="text"
                         value={walletAddress}
                         onChange={(e) => setWalletAddress(e.target.value)}
-                        className="w-full p-2 border rounded"
+                        className="w-full p-2 border rounded text-black"
                         placeholder="0x..."
                     />
                 </div>

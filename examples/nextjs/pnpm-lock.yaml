@@ -15,8 +15,8 @@ importers:
         specifier: ^6.14.0
         version: 6.14.0
       evmauth:
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ../..
+        version: link:../..
       jose:
         specifier: ^6.0.11
         version: 6.0.11
@@ -1099,10 +1099,6 @@ packages:
   ethers@6.14.0:
     resolution: {integrity: sha512-KgHwltNSMdbrGWEyKkM0Rt2s+u1nDH/5BVDQakLinzGEJi4bWindBzZSCC4gKsbZjwDTI6ex/8suR9Ihbmz4IQ==}
     engines: {node: '>=14.0.0'}
-
-  evmauth@0.2.0:
-    resolution: {integrity: sha512-TTUI184xJgcmb3rxvPjYpSR0T5S8xxwqGNGhGkU/nQjvxspJESuE0/M/3uPTZG6Lxy6WdK3DnEfylYLcPhzfFQ==}
-    engines: {node: '>=18.0.0'}
 
   expect-type@1.2.1:
     resolution: {integrity: sha512-/kP8CAwxzLVEeFrMm4kMmy4CCDlpipyA7MYLVrdJIkV0fYF0UaigQHRsxHiuY/GEea+bh4KSv3TIlgr+2UL6bw==}
@@ -2808,13 +2804,6 @@ snapshots:
       aes-js: 4.0.0-beta.5
       tslib: 2.7.0
       ws: 8.17.1
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  evmauth@0.2.0:
-    dependencies:
-      ethers: 6.14.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate

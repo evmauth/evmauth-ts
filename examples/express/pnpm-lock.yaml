@@ -18,8 +18,8 @@ importers:
         specifier: ^6.14
         version: 6.14.0
       evmauth:
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ../..
+        version: link:../..
       express:
         specifier: ^5.1.0
         version: 5.1.0
@@ -612,10 +612,6 @@ packages:
 
   eventemitter3@5.0.1:
     resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
-
-  evmauth@0.2.0:
-    resolution: {integrity: sha512-TTUI184xJgcmb3rxvPjYpSR0T5S8xxwqGNGhGkU/nQjvxspJESuE0/M/3uPTZG6Lxy6WdK3DnEfylYLcPhzfFQ==}
-    engines: {node: '>=18.0.0'}
 
   expect-type@1.2.1:
     resolution: {integrity: sha512-/kP8CAwxzLVEeFrMm4kMmy4CCDlpipyA7MYLVrdJIkV0fYF0UaigQHRsxHiuY/GEea+bh4KSv3TIlgr+2UL6bw==}
@@ -1569,13 +1565,6 @@ snapshots:
       - utf-8-validate
 
   eventemitter3@5.0.1: {}
-
-  evmauth@0.2.0:
-    dependencies:
-      ethers: 6.14.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
 
   expect-type@1.2.1: {}
 

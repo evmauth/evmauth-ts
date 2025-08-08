@@ -37,12 +37,12 @@ app.get(
     }),
     (_req: Request, res: Response) => {
         res.json({
-            message: `Paid Content: You should only see this if you purchased ${amountX402} token ID ${tokenIdX402}.`,
+            message: `Paid Content: You should only see this if you purchased token ID ${tokenIdX402} x ${amountX402}.`,
         });
     }
 );
 
-app.listen(port, async () => {
+app.listen(port, async (err) => {
     await setTokenMetadata([
         {
             id: BigInt(0),
@@ -61,6 +61,11 @@ app.listen(port, async () => {
             ttl: BigInt(3600),
         },
     ]);
+
+    if (err) {
+        console.error(`Error starting server: ${err.message}`);
+        process.exit(1);
+    }
 
     console.log(`Server is running on port ${port}`);
 });
