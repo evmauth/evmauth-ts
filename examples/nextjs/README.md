@@ -32,6 +32,14 @@ This example focuses solely on token validation for simplicity. In a production 
 - pnpm (or npm/yarn)
 - Access to an EVMAuth contract (on Radius Testnet or any other network)
 
+This example code imports the EVMAuth TypeScript SDK library from the `../../dist` directory, so you will need to
+build the EVMAuth Core project first:
+
+```sh
+cd ../../
+pnpm build
+```
+
 ### Installation
 
 1. Clone the repository:

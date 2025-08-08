@@ -11,6 +11,13 @@ simple REST API server with two endpoints:
 Before running this example code, you will need to deploy the EVMAuth contract to a testnet or local Ethereum node;
 see [EVMAuth Core](https://github.com/evmauth/evmauth-core?tab=readme-ov-file#quick-start) for instructions.
 
+This example code imports the EVMAuth TypeScript SDK library from the `../../dist` directory, so you will need to
+build the EVMAuth Core project first:
+```sh
+cd ../../
+pnpm build
+```
+
 You will also need:
 - [Node.js](https://nodejs.org/en/download/)
 - [PNPM](https://pnpm.io/installation)
