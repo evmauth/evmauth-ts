@@ -23,10 +23,10 @@ export function paymentRequired(
         // For demonstration purposes, we are passing the user's wallet address as a URL query parameter here.
         // In a real-world application, you would authenticate the user to verify they own the wallet address,
         // using something like the `@evmauth/eip712-authn` NPM package.
-        const walletAddress = req.query.address as string;
-        const tokenBalance = ethers.isAddress(walletAddress)
-            ? await auth.balanceOf(walletAddress, tokenId)
-            : 0;
+        const walletAddress = ethers.isAddress(String(req.query.address).toLowerCase())
+            ? ethers.getAddress(String(req.query.address).toLowerCase())
+            : null;
+        const tokenBalance = walletAddress ? await auth.balanceOf(walletAddress, tokenId) : 0;
 
         // If the user has the required token balance, proceed to the next middleware or route handler.
         if (tokenBalance >= amount) {
@@ -34,7 +34,7 @@ export function paymentRequired(
         }
 
         // If a routeConfig is provided, use the x402 middleware to inform the user that payment is required.
-        if (routeConfig && authSigner !== null) {
+        if (walletAddress && routeConfig && authSigner !== null) {
             const payTo: Address = (await auth.wallet()) as Address;
             const route = req.path;
             const issueTokens: RequestHandler = async (

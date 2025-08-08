@@ -4,7 +4,9 @@ import { logger } from './logger';
 /**
  * Configuration for payment responses
  */
-const contractAddress = process.env.NEXT_PUBLIC_EVMAUTH_CONTRACT_ADDRESS || '0x1234567890123456789012345678901234567890';
+const contractAddress =
+    process.env.NEXT_PUBLIC_EVMAUTH_CONTRACT_ADDRESS ||
+    '0x1234567890123456789012345678901234567890';
 const networkId = process.env.NEXT_PUBLIC_NETWORK_ID || '1223953'; // Radius Testnet
 
 /**

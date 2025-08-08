@@ -7,7 +7,14 @@
     },
     "files": {
         "ignoreUnknown": false,
-        "ignore": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/out/**", "**/coverage/**"]
+        "ignore": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/out/**",
+            "**/coverage/**",
+            "**/.next/**"
+        ]
     },
     "formatter": {
         "enabled": true,
