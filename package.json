@@ -42,7 +42,8 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "ethers": "^6.14"
+        "ethers": "^6.14",
+        "viem": "^2.37.5"
     },
     "devDependencies": {
         "@biomejs/biome": "^1.9.4",

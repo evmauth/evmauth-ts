@@ -1,38 +1,46 @@
 [
     {
-        "type": "constructor",
-        "inputs": [
+        "type": "function",
+        "name": "ACCESS_MANAGER_ROLE",
+        "inputs": [],
+        "outputs": [
             {
-                "name": "name",
-                "type": "string",
-                "internalType": "string"
-            },
-            {
-                "name": "version",
-                "type": "string",
-                "internalType": "string"
-            },
-            {
-                "name": "uri",
-                "type": "string",
-                "internalType": "string"
-            },
-            {
-                "name": "delay",
-                "type": "uint48",
-                "internalType": "uint48"
-            },
-            {
-                "name": "owner",
-                "type": "address",
-                "internalType": "address"
+                "name": "",
+                "type": "bytes32",
+                "internalType": "bytes32"
             }
         ],
-        "stateMutability": "nonpayable"
+        "stateMutability": "view"
     },
     {
         "type": "function",
-        "name": "BLACKLIST_MANAGER_ROLE",
+        "name": "ACCOUNT_FROZEN_STATUS",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "ACCOUNT_UNFROZEN_STATUS",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "BURNER_ROLE",
         "inputs": [],
         "outputs": [
             {
@@ -58,33 +66,20 @@
     },
     {
         "type": "function",
-        "name": "FINANCE_MANAGER_ROLE",
+        "name": "DEFAULT_MAX_BALANCE_RECORDS",
         "inputs": [],
         "outputs": [
             {
                 "name": "",
-                "type": "bytes32",
-                "internalType": "bytes32"
+                "type": "uint256",
+                "internalType": "uint256"
             }
         ],
         "stateMutability": "view"
     },
     {
         "type": "function",
-        "name": "PROJECT_ID",
-        "inputs": [],
-        "outputs": [
-            {
-                "name": "",
-                "type": "bytes32",
-                "internalType": "bytes32"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "TOKEN_BURNER_ROLE",
+        "name": "MINTER_ROLE",
         "inputs": [],
         "outputs": [
             {
@@ -110,7 +105,33 @@
     },
     {
         "type": "function",
-        "name": "TOKEN_MINTER_ROLE",
+        "name": "TREASURER_ROLE",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "UPGRADE_INTERFACE_VERSION",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "UPGRADE_MANAGER_ROLE",
         "inputs": [],
         "outputs": [
             {
@@ -127,154 +148,6 @@
         "inputs": [],
         "outputs": [],
         "stateMutability": "nonpayable"
-    },
-    {
-        "type": "function",
-        "name": "active",
-        "inputs": [
-            {
-                "name": "id",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "",
-                "type": "bool",
-                "internalType": "bool"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "addBatchToBlacklist",
-        "inputs": [
-            {
-                "name": "accounts",
-                "type": "address[]",
-                "internalType": "address[]"
-            }
-        ],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-    },
-    {
-        "type": "function",
-        "name": "addToBlacklist",
-        "inputs": [
-            {
-                "name": "account",
-                "type": "address",
-                "internalType": "address"
-            }
-        ],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-    },
-    {
-        "type": "function",
-        "name": "balanceDetailsOf",
-        "inputs": [
-            {
-                "name": "account",
-                "type": "address",
-                "internalType": "address"
-            },
-            {
-                "name": "id",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "",
-                "type": "tuple[]",
-                "internalType": "struct EVMAuthExpiringERC1155.Group[]",
-                "components": [
-                    {
-                        "name": "balance",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "expiresAt",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    }
-                ]
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "balanceDetailsOfAll",
-        "inputs": [
-            {
-                "name": "account",
-                "type": "address",
-                "internalType": "address"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "",
-                "type": "tuple[][]",
-                "internalType": "struct EVMAuthExpiringERC1155.Group[][]",
-                "components": [
-                    {
-                        "name": "balance",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "expiresAt",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    }
-                ]
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "balanceDetailsOfBatch",
-        "inputs": [
-            {
-                "name": "accounts",
-                "type": "address[]",
-                "internalType": "address[]"
-            },
-            {
-                "name": "ids",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "result",
-                "type": "tuple[][]",
-                "internalType": "struct EVMAuthExpiringERC1155.Group[][]",
-                "components": [
-                    {
-                        "name": "balance",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "expiresAt",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    }
-                ]
-            }
-        ],
-        "stateMutability": "view"
     },
     {
         "type": "function",
@@ -296,25 +169,6 @@
                 "name": "",
                 "type": "uint256",
                 "internalType": "uint256"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "balanceOfAll",
-        "inputs": [
-            {
-                "name": "account",
-                "type": "address",
-                "internalType": "address"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
             }
         ],
         "stateMutability": "view"
@@ -345,8 +199,13 @@
     },
     {
         "type": "function",
-        "name": "baseMetadataOf",
+        "name": "balanceRecordsOf",
         "inputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            },
             {
                 "name": "id",
                 "type": "uint256",
@@ -356,104 +215,18 @@
         "outputs": [
             {
                 "name": "",
-                "type": "tuple",
-                "internalType": "struct EVMAuthBaseERC1155.BaseMetadata",
-                "components": [
-                    {
-                        "name": "id",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "active",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "burnable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "transferable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    }
-                ]
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "baseMetadataOfAll",
-        "inputs": [],
-        "outputs": [
-            {
-                "name": "",
                 "type": "tuple[]",
-                "internalType": "struct EVMAuthBaseERC1155.BaseMetadata[]",
+                "internalType": "struct TokenEphemeral.BalanceRecord[]",
                 "components": [
                     {
-                        "name": "id",
+                        "name": "amount",
                         "type": "uint256",
                         "internalType": "uint256"
                     },
                     {
-                        "name": "active",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "burnable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "transferable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    }
-                ]
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "baseMetadataOfBatch",
-        "inputs": [
-            {
-                "name": "ids",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "",
-                "type": "tuple[]",
-                "internalType": "struct EVMAuthBaseERC1155.BaseMetadata[]",
-                "components": [
-                    {
-                        "name": "id",
+                        "name": "expiresAt",
                         "type": "uint256",
                         "internalType": "uint256"
-                    },
-                    {
-                        "name": "active",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "burnable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "transferable",
-                        "type": "bool",
-                        "internalType": "bool"
                     }
                 ]
             }
@@ -521,25 +294,6 @@
     },
     {
         "type": "function",
-        "name": "burnable",
-        "inputs": [
-            {
-                "name": "id",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "",
-                "type": "bool",
-                "internalType": "bool"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
         "name": "cancelDefaultAdminTransfer",
         "inputs": [],
         "outputs": [],
@@ -556,6 +310,59 @@
             }
         ],
         "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "createToken",
+        "inputs": [
+            {
+                "name": "config",
+                "type": "tuple",
+                "internalType": "struct EVMAuth.EVMAuthTokenConfig",
+                "components": [
+                    {
+                        "name": "price",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "erc20Prices",
+                        "type": "tuple[]",
+                        "internalType": "struct TokenPurchasable.PaymentToken[]",
+                        "components": [
+                            {
+                                "name": "token",
+                                "type": "address",
+                                "internalType": "address"
+                            },
+                            {
+                                "name": "price",
+                                "type": "uint256",
+                                "internalType": "uint256"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ttl",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "transferable",
+                        "type": "bool",
+                        "internalType": "bool"
+                    }
+                ]
+            }
+        ],
+        "outputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
         "stateMutability": "nonpayable"
     },
     {
@@ -599,26 +406,7 @@
     },
     {
         "type": "function",
-        "name": "expirationFor",
-        "inputs": [
-            {
-                "name": "id",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "forSale",
+        "name": "exists",
         "inputs": [
             {
                 "name": "id",
@@ -631,6 +419,32 @@
                 "name": "",
                 "type": "bool",
                 "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "freezeAccount",
+        "inputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "frozenAccounts",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address[]",
+                "internalType": "address[]"
             }
         ],
         "stateMutability": "view"
@@ -674,24 +488,6 @@
     },
     {
         "type": "function",
-        "name": "grantRoles",
-        "inputs": [
-            {
-                "name": "roles",
-                "type": "bytes32[]",
-                "internalType": "bytes32[]"
-            },
-            {
-                "name": "account",
-                "type": "address",
-                "internalType": "address"
-            }
-        ],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-    },
-    {
-        "type": "function",
         "name": "hasRole",
         "inputs": [
             {
@@ -701,6 +497,75 @@
             },
             {
                 "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "initialize",
+        "inputs": [
+            {
+                "name": "initialDelay",
+                "type": "uint48",
+                "internalType": "uint48"
+            },
+            {
+                "name": "initialDefaultAdmin",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "initialTreasury",
+                "type": "address",
+                "internalType": "address payable"
+            },
+            {
+                "name": "roleGrants",
+                "type": "tuple[]",
+                "internalType": "struct EVMAuth.RoleGrant[]",
+                "components": [
+                    {
+                        "name": "role",
+                        "type": "bytes32",
+                        "internalType": "bytes32"
+                    },
+                    {
+                        "name": "account",
+                        "type": "address",
+                        "internalType": "address"
+                    }
+                ]
+            },
+            {
+                "name": "uri_",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "isAcceptedERC20PaymentToken",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "paymentToken",
                 "type": "address",
                 "internalType": "address"
             }
@@ -740,7 +605,7 @@
     },
     {
         "type": "function",
-        "name": "isBlacklisted",
+        "name": "isFrozen",
         "inputs": [
             {
                 "name": "account",
@@ -759,7 +624,26 @@
     },
     {
         "type": "function",
-        "name": "issue",
+        "name": "isTransferable",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "mint",
         "inputs": [
             {
                 "name": "to",
@@ -787,7 +671,7 @@
     },
     {
         "type": "function",
-        "name": "issueBatch",
+        "name": "mintBatch",
         "inputs": [
             {
                 "name": "to",
@@ -815,147 +699,13 @@
     },
     {
         "type": "function",
-        "name": "metadataOf",
-        "inputs": [
-            {
-                "name": "id",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "",
-                "type": "tuple",
-                "internalType": "struct EVMAuth.TokenMetadata",
-                "components": [
-                    {
-                        "name": "id",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "active",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "burnable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "transferable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "price",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "ttl",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    }
-                ]
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "metadataOfAll",
+        "name": "nextTokenID",
         "inputs": [],
         "outputs": [
             {
                 "name": "",
-                "type": "tuple[]",
-                "internalType": "struct EVMAuth.TokenMetadata[]",
-                "components": [
-                    {
-                        "name": "id",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "active",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "burnable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "transferable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "price",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "ttl",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    }
-                ]
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "metadataOfBatch",
-        "inputs": [
-            {
-                "name": "ids",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "",
-                "type": "tuple[]",
-                "internalType": "struct EVMAuth.TokenMetadata[]",
-                "components": [
-                    {
-                        "name": "id",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "active",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "burnable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "transferable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "price",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "ttl",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    }
-                ]
+                "type": "uint256",
+                "internalType": "uint256"
             }
         ],
         "stateMutability": "view"
@@ -969,6 +719,26 @@
                 "name": "",
                 "type": "address",
                 "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "pause",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "paused",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
             }
         ],
         "stateMutability": "view"
@@ -1011,61 +781,59 @@
     },
     {
         "type": "function",
-        "name": "priceOf",
+        "name": "proxiableUUID",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "pruneBalanceRecords",
         "inputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            },
             {
                 "name": "id",
                 "type": "uint256",
                 "internalType": "uint256"
             }
         ],
-        "outputs": [
-            {
-                "name": "",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "priceOfAll",
-        "inputs": [],
-        "outputs": [
-            {
-                "name": "result",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "priceOfBatch",
-        "inputs": [
-            {
-                "name": "ids",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "result",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
-            }
-        ],
-        "stateMutability": "view"
+        "outputs": [],
+        "stateMutability": "nonpayable"
     },
     {
         "type": "function",
         "name": "purchase",
         "inputs": [
             {
-                "name": "account",
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "payable"
+    },
+    {
+        "type": "function",
+        "name": "purchaseFor",
+        "inputs": [
+            {
+                "name": "receiver",
                 "type": "address",
                 "internalType": "address"
             },
@@ -1085,12 +853,22 @@
     },
     {
         "type": "function",
-        "name": "removeBatchFromBlacklist",
+        "name": "purchaseWithERC20",
         "inputs": [
             {
-                "name": "accounts",
-                "type": "address[]",
-                "internalType": "address[]"
+                "name": "paymentToken",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
             }
         ],
         "outputs": [],
@@ -1098,12 +876,27 @@
     },
     {
         "type": "function",
-        "name": "removeFromBlacklist",
+        "name": "purchaseWithERC20For",
         "inputs": [
             {
-                "name": "account",
+                "name": "receiver",
                 "type": "address",
                 "internalType": "address"
+            },
+            {
+                "name": "paymentToken",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
             }
         ],
         "outputs": [],
@@ -1135,24 +928,6 @@
                 "name": "role",
                 "type": "bytes32",
                 "internalType": "bytes32"
-            },
-            {
-                "name": "account",
-                "type": "address",
-                "internalType": "address"
-            }
-        ],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-    },
-    {
-        "type": "function",
-        "name": "revokeRoles",
-        "inputs": [
-            {
-                "name": "roles",
-                "type": "bytes32[]",
-                "internalType": "bytes32[]"
             },
             {
                 "name": "account",
@@ -1256,130 +1031,10 @@
     },
     {
         "type": "function",
-        "name": "setBaseMetadata",
+        "name": "setBaseURI",
         "inputs": [
             {
-                "name": "id",
-                "type": "uint256",
-                "internalType": "uint256"
-            },
-            {
-                "name": "_active",
-                "type": "bool",
-                "internalType": "bool"
-            },
-            {
-                "name": "_burnable",
-                "type": "bool",
-                "internalType": "bool"
-            },
-            {
-                "name": "_transferable",
-                "type": "bool",
-                "internalType": "bool"
-            }
-        ],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-    },
-    {
-        "type": "function",
-        "name": "setMetadata",
-        "inputs": [
-            {
-                "name": "id",
-                "type": "uint256",
-                "internalType": "uint256"
-            },
-            {
-                "name": "_active",
-                "type": "bool",
-                "internalType": "bool"
-            },
-            {
-                "name": "_burnable",
-                "type": "bool",
-                "internalType": "bool"
-            },
-            {
-                "name": "_transferable",
-                "type": "bool",
-                "internalType": "bool"
-            },
-            {
-                "name": "_price",
-                "type": "uint256",
-                "internalType": "uint256"
-            },
-            {
-                "name": "_ttl",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-    },
-    {
-        "type": "function",
-        "name": "setPriceOf",
-        "inputs": [
-            {
-                "name": "id",
-                "type": "uint256",
-                "internalType": "uint256"
-            },
-            {
-                "name": "price",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-    },
-    {
-        "type": "function",
-        "name": "setPriceOfBatch",
-        "inputs": [
-            {
-                "name": "ids",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
-            },
-            {
-                "name": "prices",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
-            }
-        ],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-    },
-    {
-        "type": "function",
-        "name": "setTTL",
-        "inputs": [
-            {
-                "name": "id",
-                "type": "uint256",
-                "internalType": "uint256"
-            },
-            {
-                "name": "value",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-    },
-    {
-        "type": "function",
-        "name": "setURI",
-        "inputs": [
-            {
-                "name": "value",
+                "name": "baseURI",
                 "type": "string",
                 "internalType": "string"
             }
@@ -1389,12 +1044,30 @@
     },
     {
         "type": "function",
-        "name": "setWallet",
+        "name": "setTokenURI",
         "inputs": [
             {
-                "name": "value",
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "tokenURI",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "setTreasury",
+        "inputs": [
+            {
+                "name": "newTreasury",
                 "type": "address",
-                "internalType": "address"
+                "internalType": "address payable"
             }
         ],
         "outputs": [],
@@ -1421,7 +1094,7 @@
     },
     {
         "type": "function",
-        "name": "transferable",
+        "name": "tokenConfig",
         "inputs": [
             {
                 "name": "id",
@@ -1432,15 +1105,92 @@
         "outputs": [
             {
                 "name": "",
-                "type": "bool",
-                "internalType": "bool"
+                "type": "tuple",
+                "internalType": "struct EVMAuth.EVMAuthToken",
+                "components": [
+                    {
+                        "name": "id",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "config",
+                        "type": "tuple",
+                        "internalType": "struct EVMAuth.EVMAuthTokenConfig",
+                        "components": [
+                            {
+                                "name": "price",
+                                "type": "uint256",
+                                "internalType": "uint256"
+                            },
+                            {
+                                "name": "erc20Prices",
+                                "type": "tuple[]",
+                                "internalType": "struct TokenPurchasable.PaymentToken[]",
+                                "components": [
+                                    {
+                                        "name": "token",
+                                        "type": "address",
+                                        "internalType": "address"
+                                    },
+                                    {
+                                        "name": "price",
+                                        "type": "uint256",
+                                        "internalType": "uint256"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "ttl",
+                                "type": "uint256",
+                                "internalType": "uint256"
+                            },
+                            {
+                                "name": "transferable",
+                                "type": "bool",
+                                "internalType": "bool"
+                            }
+                        ]
+                    }
+                ]
             }
         ],
         "stateMutability": "view"
     },
     {
         "type": "function",
-        "name": "ttlOf",
+        "name": "tokenERC20Prices",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "tuple[]",
+                "internalType": "struct TokenPurchasable.PaymentToken[]",
+                "components": [
+                    {
+                        "name": "token",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "price",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    }
+                ]
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "tokenPrice",
         "inputs": [
             {
                 "name": "id",
@@ -1459,42 +1209,132 @@
     },
     {
         "type": "function",
-        "name": "ttlOfAll",
+        "name": "tokenTTL",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "treasury",
         "inputs": [],
         "outputs": [
             {
                 "name": "",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
+                "type": "address",
+                "internalType": "address"
             }
         ],
         "stateMutability": "view"
     },
     {
         "type": "function",
-        "name": "ttlOfBatch",
+        "name": "unfreezeAccount",
         "inputs": [
             {
-                "name": "ids",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
             }
         ],
-        "outputs": [
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "unpause",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "updateToken",
+        "inputs": [
             {
-                "name": "",
-                "type": "uint256[]",
-                "internalType": "uint256[]"
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "config",
+                "type": "tuple",
+                "internalType": "struct EVMAuth.EVMAuthTokenConfig",
+                "components": [
+                    {
+                        "name": "price",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "erc20Prices",
+                        "type": "tuple[]",
+                        "internalType": "struct TokenPurchasable.PaymentToken[]",
+                        "components": [
+                            {
+                                "name": "token",
+                                "type": "address",
+                                "internalType": "address"
+                            },
+                            {
+                                "name": "price",
+                                "type": "uint256",
+                                "internalType": "uint256"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ttl",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "transferable",
+                        "type": "bool",
+                        "internalType": "bool"
+                    }
+                ]
             }
         ],
-        "stateMutability": "view"
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "upgradeToAndCall",
+        "inputs": [
+            {
+                "name": "newImplementation",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "data",
+                "type": "bytes",
+                "internalType": "bytes"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "payable"
     },
     {
         "type": "function",
         "name": "uri",
         "inputs": [
             {
-                "name": "",
+                "name": "tokenId",
                 "type": "uint256",
                 "internalType": "uint256"
             }
@@ -1509,34 +1349,20 @@
         "stateMutability": "view"
     },
     {
-        "type": "function",
-        "name": "wallet",
-        "inputs": [],
-        "outputs": [
-            {
-                "name": "",
-                "type": "address",
-                "internalType": "address"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "withdraw",
-        "inputs": [],
-        "outputs": [],
-        "stateMutability": "payable"
-    },
-    {
         "type": "event",
-        "name": "AddedToBlacklist",
+        "name": "AccountStatusUpdated",
         "inputs": [
             {
                 "name": "account",
                 "type": "address",
                 "indexed": true,
                 "internalType": "address"
+            },
+            {
+                "name": "status",
+                "type": "bytes32",
+                "indexed": true,
+                "internalType": "bytes32"
             }
         ],
         "anonymous": false
@@ -1618,14 +1444,8 @@
     },
     {
         "type": "event",
-        "name": "ExpiredTokensBurned",
+        "name": "ERC20PriceSet",
         "inputs": [
-            {
-                "name": "account",
-                "type": "address",
-                "indexed": true,
-                "internalType": "address"
-            },
             {
                 "name": "id",
                 "type": "uint256",
@@ -1633,26 +1453,13 @@
                 "internalType": "uint256"
             },
             {
-                "name": "amount",
-                "type": "uint256",
-                "indexed": false,
-                "internalType": "uint256"
-            }
-        ],
-        "anonymous": false
-    },
-    {
-        "type": "event",
-        "name": "FundsWithdrawn",
-        "inputs": [
-            {
-                "name": "wallet",
+                "name": "token",
                 "type": "address",
                 "indexed": true,
                 "internalType": "address"
             },
             {
-                "name": "amount",
+                "name": "price",
                 "type": "uint256",
                 "indexed": false,
                 "internalType": "uint256"
@@ -1662,12 +1469,97 @@
     },
     {
         "type": "event",
-        "name": "RemovedFromBlacklist",
+        "name": "EVMAuthTokenConfigured",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "indexed": true,
+                "internalType": "uint256"
+            },
+            {
+                "name": "config",
+                "type": "tuple",
+                "indexed": false,
+                "internalType": "struct EVMAuth.EVMAuthTokenConfig",
+                "components": [
+                    {
+                        "name": "price",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "erc20Prices",
+                        "type": "tuple[]",
+                        "internalType": "struct TokenPurchasable.PaymentToken[]",
+                        "components": [
+                            {
+                                "name": "token",
+                                "type": "address",
+                                "internalType": "address"
+                            },
+                            {
+                                "name": "price",
+                                "type": "uint256",
+                                "internalType": "uint256"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ttl",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "transferable",
+                        "type": "bool",
+                        "internalType": "bool"
+                    }
+                ]
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "Initialized",
+        "inputs": [
+            {
+                "name": "version",
+                "type": "uint64",
+                "indexed": false,
+                "internalType": "uint64"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "NativePriceSet",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "indexed": true,
+                "internalType": "uint256"
+            },
+            {
+                "name": "price",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "Paused",
         "inputs": [
             {
                 "name": "account",
                 "type": "address",
-                "indexed": true,
+                "indexed": false,
                 "internalType": "address"
             }
         ],
@@ -1750,150 +1642,16 @@
     },
     {
         "type": "event",
-        "name": "TokenMetadataCreated",
-        "inputs": [
-            {
-                "name": "id",
-                "type": "uint256",
-                "indexed": true,
-                "internalType": "uint256"
-            },
-            {
-                "name": "metadata",
-                "type": "tuple",
-                "indexed": false,
-                "internalType": "struct EVMAuth.TokenMetadata",
-                "components": [
-                    {
-                        "name": "id",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "active",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "burnable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "transferable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "price",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "ttl",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    }
-                ]
-            }
-        ],
-        "anonymous": false
-    },
-    {
-        "type": "event",
-        "name": "TokenMetadataUpdated",
-        "inputs": [
-            {
-                "name": "id",
-                "type": "uint256",
-                "indexed": true,
-                "internalType": "uint256"
-            },
-            {
-                "name": "oldMetadata",
-                "type": "tuple",
-                "indexed": false,
-                "internalType": "struct EVMAuth.TokenMetadata",
-                "components": [
-                    {
-                        "name": "id",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "active",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "burnable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "transferable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "price",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "ttl",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    }
-                ]
-            },
-            {
-                "name": "newMetadata",
-                "type": "tuple",
-                "indexed": false,
-                "internalType": "struct EVMAuth.TokenMetadata",
-                "components": [
-                    {
-                        "name": "id",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "active",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "burnable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "transferable",
-                        "type": "bool",
-                        "internalType": "bool"
-                    },
-                    {
-                        "name": "price",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    },
-                    {
-                        "name": "ttl",
-                        "type": "uint256",
-                        "internalType": "uint256"
-                    }
-                ]
-            }
-        ],
-        "anonymous": false
-    },
-    {
-        "type": "event",
         "name": "TokenPurchased",
         "inputs": [
             {
-                "name": "account",
+                "name": "caller",
+                "type": "address",
+                "indexed": false,
+                "internalType": "address"
+            },
+            {
+                "name": "receiver",
                 "type": "address",
                 "indexed": true,
                 "internalType": "address"
@@ -1906,6 +1664,12 @@
             },
             {
                 "name": "amount",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "price",
                 "type": "uint256",
                 "indexed": false,
                 "internalType": "uint256"
@@ -1989,6 +1753,25 @@
     },
     {
         "type": "event",
+        "name": "TreasuryUpdated",
+        "inputs": [
+            {
+                "name": "caller",
+                "type": "address",
+                "indexed": false,
+                "internalType": "address"
+            },
+            {
+                "name": "account",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
         "name": "URI",
         "inputs": [
             {
@@ -2008,16 +1791,23 @@
     },
     {
         "type": "event",
-        "name": "WalletChanged",
+        "name": "Unpaused",
         "inputs": [
             {
-                "name": "oldWallet",
+                "name": "account",
                 "type": "address",
-                "indexed": true,
+                "indexed": false,
                 "internalType": "address"
-            },
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "Upgraded",
+        "inputs": [
             {
-                "name": "newWallet",
+                "name": "implementation",
                 "type": "address",
                 "indexed": true,
                 "internalType": "address"
@@ -2070,6 +1860,28 @@
                 "name": "neededRole",
                 "type": "bytes32",
                 "internalType": "bytes32"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "AccountFrozen",
+        "inputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "AddressEmptyCode",
+        "inputs": [
+            {
+                "name": "target",
+                "type": "address",
+                "internalType": "address"
             }
         ]
     },
@@ -2177,6 +1989,223 @@
     },
     {
         "type": "error",
+        "name": "ERC1967InvalidImplementation",
+        "inputs": [
+            {
+                "name": "implementation",
+                "type": "address",
+                "internalType": "address"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "ERC1967NonPayable",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "EnforcedPause",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "ExpectedPause",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "FailedCall",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "InsufficientBalance",
+        "inputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "available",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "requested",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "InsufficientERC20Allowance",
+        "inputs": [
+            {
+                "name": "token",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "required",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "allowance",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "InsufficientERC20Balance",
+        "inputs": [
+            {
+                "name": "token",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "required",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "balance",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "InsufficientPayment",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "price",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "paid",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "InvalidAddress",
+        "inputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "InvalidERC20PaymentToken",
+        "inputs": [
+            {
+                "name": "token",
+                "type": "address",
+                "internalType": "address"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "InvalidInitialization",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "InvalidReceiverAddress",
+        "inputs": [
+            {
+                "name": "receiver",
+                "type": "address",
+                "internalType": "address"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "InvalidSelfTransfer",
+        "inputs": [
+            {
+                "name": "sender",
+                "type": "address",
+                "internalType": "address"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "InvalidTokenID",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "InvalidTokenQuantity",
+        "inputs": [
+            {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "InvalidTreasuryAddress",
+        "inputs": [
+            {
+                "name": "treasury",
+                "type": "address",
+                "internalType": "address"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "InvalidZeroValueTransfer",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "NotInitializing",
+        "inputs": []
+    },
+    {
+        "type": "error",
         "name": "ReentrancyGuardReentrantCall",
         "inputs": []
     },
@@ -2193,6 +2222,71 @@
                 "name": "value",
                 "type": "uint256",
                 "internalType": "uint256"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "SafeERC20FailedOperation",
+        "inputs": [
+            {
+                "name": "token",
+                "type": "address",
+                "internalType": "address"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "TokenIsNonTransferable",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "TokenNotForSaleWithERC20",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "token",
+                "type": "address",
+                "internalType": "address"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "TokenNotForSaleWithNativeCurrency",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "UUPSUnauthorizedCallContext",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "UUPSUnsupportedProxiableUUID",
+        "inputs": [
+            {
+                "name": "slot",
+                "type": "bytes32",
+                "internalType": "bytes32"
             }
         ]
     }

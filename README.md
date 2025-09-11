@@ -3,240 +3,373 @@
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/evmauth/evmauth-ts/test.yml?label=Tests)
 ![GitHub Repo stars](https://img.shields.io/github/stars/evmauth/evmauth-ts)
 
-A TypeScript SDK for interacting with [EVMAuth contracts](https://github.com/evmauth/evmauth-core) deployed to Ethereum, Radius, and other EVM-compatible networks.
+TypeScript types and helper functions for interacting with [EVMAuth contracts](https://github.com/evmauth/evmauth-core) on Ethereum and EVM-compatible networks. This SDK uses Viem for automatic type inference from contract ABIs, providing full type safety with minimal overhead.
 
 ## Features
 
-- Full TypeScript support with comprehensive type definitions
-- Complete coverage of all EVMAuth contract functions
-- Support for read and write operations
-- Event handling with typed callbacks
-- Works with any EVM-compatible network (Ethereum, Radius, etc.)
-- Supports both providers and signers
+- 🔒 **Full TypeScript Support** - Automatic type inference from contract ABIs via Viem
+- 📦 **Two Token Standards** - Support for both ERC-1155 (EVMAuth1155) and ERC-6909 (EVMAuth6909) implementations
+- 🚀 **Zero Overhead** - Direct contract access with minimal helper functions
+- ⚡ **Tree-shakeable** - Import only what you need for smaller bundles
+- 🛠️ **Developer Friendly** - IntelliSense support for all contract methods and events
+- 🔄 **Type Safe** - Compile-time type checking for all contract interactions
 
 ## Installation
 
 ```bash
-npm install evmauth ethers
+npm install evmauth viem
 ```
 
 ## Quick Start
 
 ```typescript
-import { ethers } from 'ethers';
-import { EVMAuth } from 'evmauth';
+import { createWalletClient, createPublicClient, http, type Address } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { mainnet } from 'viem/chains';
+import { getEVMAuth1155, purchaseWithNative } from 'evmauth';
 
-// Replace with your EVMAuth contract address
-const contractAddress = '0x1234567890abcdef1234567890abcdef12345678';
+// Create clients
+const publicClient = createPublicClient({
+    chain: mainnet,
+    transport: http('YOUR_RPC_URL'),
+});
 
-// Connect to an EVM network provider
-const provider = new ethers.JsonRpcProvider('YOUR_RPC_URL');
+const account = privateKeyToAccount('0x...');
+const walletClient = createWalletClient({
+    account,
+    chain: mainnet,
+    transport: http('YOUR_RPC_URL'),
+});
 
-// Create an SDK instance
-const evmAuth = new EVMAuth(contractAddress, provider);
+// For EVMAuth1155 contracts
+const contract = getEVMAuth1155('0xContractAddress' as Address, walletClient);
 
-// Read token metadata
-const tokenId = 1;
-evmAuth.metadataOf(tokenId)
-  .then(metadata => console.log('Token Metadata:', metadata))
-  .catch(console.error);
+// Read token price
+const tokenId = 1n;
+const price = await contract.read.tokenPrice([tokenId]);
 
-// Connect with a signer for write operations
-const privateKey = 'YOUR_PRIVATE_KEY';
-const signer = new ethers.Wallet(privateKey, provider);
-const evmAuthSigner = evmAuth.connect(signer);
+// Purchase tokens with helper function
+await purchaseWithNative(contract, tokenId, 5n); // Buy 5 tokens
 
-// Purchase a token
-evmAuthSigner.purchase('0xRECIPIENT', tokenId, 1, ethers.parseEther('0.1'))
-  .then(tx => console.log('Transaction hash:', tx.hash))
-  .catch(console.error);
+// Or use contract directly
+const totalCost = price * 5n;
+await contract.write.purchase([tokenId, 5n], { value: totalCost });
+
+// Check balance
+const balance = await contract.read.balanceOf([account.address, tokenId]);
+console.log(`Balance: ${balance}`);
 ```
 
-## Core Functionality
+## Usage
 
-### Initialization
+### Connecting to Contracts
 
 ```typescript
-// With provider (read-only)
-const provider = new ethers.JsonRpcProvider('https://rpc.example.com');
-const evmAuth = new EVMAuth(contractAddress, provider);
+import { createWalletClient, createPublicClient, http, type Address } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { mainnet } from 'viem/chains';
+import { getEVMAuth1155, getEVMAuth6909 } from 'evmauth';
 
-// With signer (read & write)
-const signer = new ethers.Wallet(privateKey, provider);
-const evmAuthSigner = new EVMAuth(contractAddress, signer);
+// Setup clients
+const publicClient = createPublicClient({
+    chain: mainnet,
+    transport: http('https://your-rpc-url'),
+});
 
-// Or connect a signer to an existing instance
-const evmAuthSigner = evmAuth.connect(signer);
+const account = privateKeyToAccount('0x...');
+const walletClient = createWalletClient({
+    account,
+    chain: mainnet,
+    transport: http('https://your-rpc-url'),
+});
+
+// Connect to EVMAuth1155 contract
+const contract1155 = getEVMAuth1155('0xAddress' as Address, walletClient);
+
+// Connect to EVMAuth6909 contract  
+const contract6909 = getEVMAuth6909('0xAddress' as Address, walletClient);
+
+// Read-only connection (use publicClient)
+const readOnly = getEVMAuth1155('0xAddress' as Address, publicClient);
 ```
 
-### Reading Token Data
+### Creating and Configuring Tokens
 
 ```typescript
-// Get token metadata
-const metadata = await evmAuth.metadataOf(tokenId);
-console.log(metadata);
-// { id: 0n, active: true, burnable: true, transferable: false, price: 100000000000000000n, ttl: 2592000n }
+import { parseEther } from 'viem';
+import { getTokenIdFromCreation } from 'evmauth';
+import type { EVMAuthTokenConfig } from 'evmauth';
 
-// Check token status
-const isActive = await evmAuth.active(tokenId);
-const isBurnable = await evmAuth.burnable(tokenId);
-const isTransferable = await evmAuth.transferable(tokenId);
-const isForSale = await evmAuth.forSale(tokenId);
+// Define token configuration
+const tokenConfig: EVMAuthTokenConfig = {
+    price: parseEther('0.1'),              // 0.1 ETH per token
+    erc20Prices: [],                       // No ERC20 payment options
+    ttl: BigInt(30 * 24 * 60 * 60),       // 30 days in seconds
+    transferable: true                     // Can be transferred
+};
 
-// Get token price and TTL
-const price = await evmAuth.priceOf(tokenId);
-const ttl = await evmAuth.ttlOf(tokenId);
-const expiration = await evmAuth.expirationFor(tokenId);
+// Create a new token
+const hash = await contract.write.createToken([tokenConfig]);
+const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
-// Get token balance
-const balance = await evmAuth.balanceOf(accountAddress, tokenId);
+// Extract the token ID from the creation event
+const tokenId = getTokenIdFromCreation(receipt);
+console.log('Created token:', tokenId);
 
-// Get detailed balance including expiration
-const balanceDetailsOf = await evmAuth.balanceDetailsOf(accountAddress, tokenId);
-console.log(balanceDetailsOf);
-// [{ balance: 1n, expiresAt: 1714583142n }]
+// Update token configuration (requires TOKEN_MANAGER_ROLE)
+const newConfig: EVMAuthTokenConfig = {
+    price: parseEther('0.2'),
+    erc20Prices: [],
+    ttl: BigInt(60 * 24 * 60 * 60),
+    transferable: false
+};
+await contract.write.updateToken([tokenId, newConfig]);
 ```
 
-### Token Operations
+### Purchasing Tokens
 
 ```typescript
-// Mint tokens (requires TOKEN_MINTER_ROLE)
-await evmAuth.issue(recipientAddress, tokenId, amount);
+import { 
+    purchaseWithNative, 
+    purchaseForWithNative,
+    canPurchaseWithERC20 
+} from 'evmauth';
 
-// Burn tokens (requires TOKEN_BURNER_ROLE)
-await evmAuth.burn(accountAddress, tokenId, amount);
+// Purchase with native currency (ETH, etc.)
+await purchaseWithNative(contract, tokenId, 5n); // Buy 5 tokens
 
-// Purchase tokens
-await evmAuth.purchase(recipientAddress, tokenId, amount, price);
+// Purchase for another address
+await purchaseForWithNative(contract, '0xRecipient' as Address, tokenId, 3n);
 
-// Transfer tokens (if transferable)
-await evmAuth.safeTransferFrom(fromAddress, toAddress, tokenId, amount);
+// Check if ERC20 payment is accepted
+const usdcAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as Address;
+if (await canPurchaseWithERC20(contract, tokenId, usdcAddress)) {
+    // First approve the USDC spending
+    // const usdcContract = getContract({ address: usdcAddress, abi: erc20Abi, client: walletClient });
+    // await usdcContract.write.approve([contract.address, requiredAmount]);
+    
+    // Then purchase with ERC20
+    await contract.write.purchaseWithERC20([usdcAddress, tokenId, 5n]);
+}
+```
+
+### Checking Balances
+
+```typescript
+import { hasActiveBalance } from 'evmauth';
+
+// Get raw balance
+const balance = await contract.read.balanceOf([userAddress, tokenId]);
+
+// Check if user has minimum required balance
+const hasEnough = await hasActiveBalance(contract, userAddress, tokenId, 1n);
+
+// Get detailed balance records with expiration times
+const records = await contract.read.balanceRecordsOf([userAddress, tokenId]);
+for (const record of records) {
+    console.log(`Amount: ${record.amount}`);
+    console.log(`Expires: ${new Date(Number(record.expiresAt) * 1000)}`);
+}
 ```
 
 ### Role Management
 
 ```typescript
-import { roles } from 'evmauth';
+import { ROLES } from 'evmauth';
 
-// Check roles
-const hasMinterRole = await evmAuth.hasRole(roles.tokenMinter, accountAddress);
+// Check if address has a role
+const minterRole = await contract.read.MINTER_ROLE();
+const isMinter = await contract.read.hasRole([minterRole, userAddress]);
 
-// Grant roles (requires admin role)
-await evmAuth.grantRole(roles.tokenMinter, accountAddress);
-await evmAuth.grantRoles([roles.tokenMinter, roles.tokenBurner], accountAddress);
+// Grant a role (requires DEFAULT_ADMIN_ROLE)
+const tokenManagerRole = await contract.read.TOKEN_MANAGER_ROLE();
+await contract.write.grantRole([tokenManagerRole, managerAddress]);
 
-// Revoke roles
-await evmAuth.revokeRole(roles.tokenMinter, accountAddress);
-await evmAuth.revokeRoles([roles.tokenMinter, roles.tokenBurner], accountAddress);
+// Revoke a role
+await contract.write.revokeRole([minterRole, userAddress]);
+
+// Using the ROLES helper constant
+console.log('Available roles:', ROLES);
+// { DEFAULT_ADMIN, MINTER, BURNER, TOKEN_MANAGER, ... }
 ```
 
-### Blacklist Management
+### Token Operations
 
 ```typescript
-// Check if an account is blacklisted
-const isBlacklisted = await evmAuth.isBlacklisted(accountAddress);
+// Mint tokens (requires MINTER_ROLE)
+await contract.write.mint([recipientAddress, tokenId, 100n, '0x']);
 
-// Add to blacklist (requires BLACKLIST_MANAGER_ROLE)
-await evmAuth.addToBlacklist(accountAddress);
-await evmAuth.addBatchToBlacklist([address1, address2, address3]);
+// Burn tokens (requires BURNER_ROLE)
+await contract.write.burn([holderAddress, tokenId, 50n]);
 
-// Remove from blacklist
-await evmAuth.removeFromBlacklist(accountAddress);
-await evmAuth.removeBatchFromBlacklist([address1, address2, address3]);
+// Transfer tokens (if transferable)
+await contract.write.safeTransferFrom([
+    fromAddress,
+    toAddress,
+    tokenId,
+    amount,
+    '0x' // optional data
+]);
+
+// Batch transfer (ERC1155 only)
+await contract1155.write.safeBatchTransferFrom([
+    fromAddress,
+    toAddress,
+    [tokenId1, tokenId2],
+    [amount1, amount2],
+    '0x'
+]);
 ```
 
-### Event Handling
+### Event Listening
 
 ```typescript
-// Listen for token transfers (ERC-1155 TransferSingle event)
-const unsubscribe = evmAuth.onTransferSingle(
-  (event) => {
-    console.log('Transfer:', event);
-  },
-  fromFilter, // optional: filter by sender address (use zero address for token minting events)
-  toFilter,   // optional: filter by receiver address (use zero address for token burning events)
-);
+import { parseAbiItem } from 'viem';
 
-// Listen for token purchases
-const unsubscribe = evmAuth.onTokenPurchased(
-  (event) => {
-    console.log('Purchase:', event);
-  },
-  accountFilter, // optional: filter by purchaser wallet address
-  tokenIdFilter, // optional: filter by token ID
-);
+// Watch for token purchases
+const unwatch = publicClient.watchContractEvent({
+    address: contract.address,
+    abi: contract.abi,
+    eventName: 'TokenPurchased',
+    onLogs: (logs) => {
+        for (const log of logs) {
+            console.log(`Token ${log.args.id} purchased`);
+            console.log(`Amount: ${log.args.amount}, Price: ${log.args.price}`);
+        }
+    },
+});
 
-// Stop listening
-unsubscribe();
+// Get past events
+const events = await publicClient.getContractEvents({
+    address: contract.address,
+    abi: contract.abi,
+    eventName: 'TokenPurchased',
+    fromBlock: 'earliest',
+    toBlock: 'latest',
+});
+
+// Filter events for specific user
+const userEvents = await publicClient.getContractEvents({
+    address: contract.address,
+    abi: contract.abi,
+    eventName: 'TokenPurchased',
+    args: { receiver: userAddress },
+    fromBlock: 'earliest',
+    toBlock: 'latest',
+});
 ```
 
-## Advanced Usage
+## ERC-1155 vs ERC-6909
 
-### Admin Functions
+This SDK supports both token standards:
 
+### ERC-1155 (EVMAuth1155)
 ```typescript
-// Get contract owner
-const owner = await evmAuth.owner();
+// Batch operations
+const balances = await contract1155.read.balanceOfBatch([
+    [address1, address2],
+    [tokenId1, tokenId2]
+]);
 
-// Transfer ownership (two-step process)
-await evmAuth.beginDefaultAdminTransfer(newAdminAddress);
-// Later, as the new admin:
-await evmAuth.acceptDefaultAdminTransfer();
+// Set approval for all tokens
+await contract1155.write.setApprovalForAll([operatorAddress, true]);
 
-// Get/set wallet for receiving funds
-const wallet = await evmAuth.wallet();
-await evmAuth.setWallet(newWalletAddress);
-
-// Withdraw funds accidentally sent to the contract address
-await evmAuth.withdraw();
+// URI for metadata
+const uri = await contract1155.read.uri([tokenId]);
 ```
 
-### Token Configuration
-
+### ERC-6909 (EVMAuth6909)
 ```typescript
-// Update token metadata
-await evmAuth.setMetadata(
-  tokenId,
-  true,  // active
-  true,  // burnable
-  false, // transferable
-  ethers.parseEther('0.1'), // price
-  60 * 60 * 24 * 30 // ttl: 30 days in seconds
-);
+// Token-specific approvals
+await contract6909.write.approve([spenderAddress, tokenId, amount]);
 
-// Update token price
-await evmAuth.setPriceOf(tokenId, ethers.parseEther('0.2'));
-await evmAuth.setPriceOfBatch([token1, token2], [price1, price2]);
+// Check allowance
+const allowance = await contract6909.read.allowance([
+    ownerAddress,
+    spenderAddress,
+    tokenId
+]);
 
-// Update token TTL
-await evmAuth.setTTL(tokenId, 60 * 60 * 24 * 7); // 7 days in seconds
+// Transfer with allowance
+await contract6909.write.transferFrom([
+    fromAddress,
+    toAddress,
+    tokenId,
+    amount
+]);
 
-// Update URI
-await evmAuth.setURI('https://metadata.example.com/{id}.json');
+// Token metadata
+const name = await contract6909.read.name([tokenId]);
+const symbol = await contract6909.read.symbol([tokenId]);
+const decimals = await contract6909.read.decimals([tokenId]);
 ```
+
+## Viem Benefits
+
+This SDK uses Viem for type-safe contract interactions:
+
+- **Type Safety**: Automatic type inference from contract ABIs
+- **IntelliSense**: Auto-completion for all contract functions and parameters
+- **Runtime Safety**: Built-in validation and error handling
+- **Tree Shaking**: Import only what you use for smaller bundles
+- **Direct Access**: Use contracts directly with minimal overhead
+- **Modern Stack**: Built on the latest Web3 standards
 
 ## Error Handling
 
-The SDK propagates errors from the underlying contract calls. Common errors include:
-
-- `AccessControlUnauthorizedAccount`: The caller does not have the required role
-- `ERC1155InsufficientBalance`: Insufficient balance for a transfer or burn operation
-- `ERC1155InvalidReceiver`: The recipient cannot receive ERC1155 tokens
-
-Example error handling:
-
 ```typescript
+import { ContractFunctionRevertedError } from 'viem';
+
 try {
-  await evmAuth.issue(recipientAddress, tokenId, amount);
-  console.log('Tokens minted successfully');
+    await purchaseWithNative(contract, tokenId, 10n);
 } catch (error) {
-  if (error.message.includes('AccessControlUnauthorizedAccount')) {
-    console.error('Error: You do not have the TOKEN_MINTER_ROLE');
-  } else {
-    console.error('Unexpected error:', error);
-  }
+    if (error instanceof ContractFunctionRevertedError) {
+        const revertError = error.data?.errorName;
+        if (revertError === 'InsufficientBalance') {
+            console.error('Not enough ETH to purchase tokens');
+        } else if (revertError === 'Pausable__Paused') {
+            console.error('Contract is currently paused');
+        } else if (revertError === 'AccountFrozen') {
+            console.error('Your account has been frozen');
+        } else {
+            console.error('Transaction failed:', revertError);
+        }
+    } else {
+        console.error('Transaction failed:', error);
+    }
 }
 ```
+
+## Migration from Ethers.js/TypeChain
+
+If you were using ethers.js or TypeChain:
+
+```typescript
+// Old way (ethers.js/TypeChain)
+import { ethers } from 'ethers';
+import { EVMAuth1155__factory } from './typechain';
+const provider = new ethers.JsonRpcProvider(url);
+const signer = new ethers.Wallet(key, provider);
+const contract = EVMAuth1155__factory.connect(address, signer);
+await contract.purchase(tokenId, amount, { value });
+
+// New way (Viem)
+import { createWalletClient, http } from 'viem';
+import { getEVMAuth1155 } from 'evmauth';
+const walletClient = createWalletClient({ chain, transport: http(url) });
+const contract = getEVMAuth1155(address, walletClient);
+await contract.write.purchase([tokenId, amount], { value });
+```
+
+Key differences:
+- Use Viem clients instead of ethers providers/signers
+- Contract methods are under `.read` and `.write` namespaces
+- Arguments are passed as arrays
+- All numeric values use `bigint` (add `n` suffix to literals)
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ## License
 

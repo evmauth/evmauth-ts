@@ -29,14 +29,61 @@ Please use our issue templates when creating a new issue:
 
 These structured templates help us gather the information we need to address your issue efficiently.
 
+## Prerequisites
+
+- Node.js 18+ and pnpm
+- [Foundry](https://book.getfoundry.sh/getting-started/installation) for running Anvil (local Ethereum node)
+
 ## Development Workflow
 
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/your-username/evmauth-ts.git`
-3. Create a new branch: `git checkout -b my-feature`
-4. Make your changes
-5. Run `pnpm check` and `pnpm test` to ensure code is formatted and tests pass
-6. Push to your fork and submit a pull request
+3. Install dependencies: `pnpm install`
+4. Create a new branch: `git checkout -b my-feature`
+5. Make your changes
+6. Run tests (see Testing section below)
+7. Run `pnpm check` to ensure code passes type checking and linting
+8. Push to your fork and submit a pull request
+
+## Testing
+
+This project uses integration tests that require a local Ethereum node. We use Anvil from Foundry for this purpose.
+
+### Running Tests
+
+1. **Start Anvil** in a separate terminal:
+   ```bash
+   anvil
+   ```
+   This starts a local Ethereum node on `http://127.0.0.1:8545`
+
+2. **Run the tests** in another terminal:
+   ```bash
+   pnpm test
+   ```
+
+### Writing Tests
+
+- Tests are located in `src/__tests__/`
+- We use Vitest for testing
+- Integration tests interact with real contracts deployed to Anvil
+- Mock-based unit tests are discouraged as they don't provide value with Viem's type-safe contracts
+
+### Test Coverage
+
+Run coverage reports with:
+```bash
+pnpm test:coverage
+```
+
+## Available Scripts
+
+- `pnpm build` - Build the TypeScript code
+- `pnpm test` - Run tests (requires Anvil running)
+- `pnpm test:coverage` - Run tests with coverage
+- `pnpm check` - Run type checking and linting
+- `pnpm format` - Format code with Biome
+- `pnpm clean` - Clean build artifacts
 
 ## Commit Messages
 

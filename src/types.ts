@@ -1,31 +1,28 @@
 import type { JsonRpcProvider, Wallet } from 'ethers';
 
 export type EVMAuthRole =
-    | 'BLACKLIST_MANAGER_ROLE'
     | 'DEFAULT_ADMIN_ROLE'
-    | 'FINANCE_MANAGER_ROLE'
-    | 'TOKEN_BURNER_ROLE'
+    | 'UPGRADE_MANAGER_ROLE'
+    | 'ACCESS_MANAGER_ROLE'
     | 'TOKEN_MANAGER_ROLE'
-    | 'TOKEN_MINTER_ROLE';
+    | 'MINTER_ROLE'
+    | 'BURNER_ROLE'
+    | 'TREASURER_ROLE';
 
-export interface TokenMetadata {
-    id: number | bigint;
-    active: boolean;
-    burnable: boolean;
-    transferable: boolean;
+export interface EVMAuthTokenConfig {
     price: number | bigint;
+    erc20Prices: { token: string; price: number | bigint }[];
     ttl: number | bigint;
-}
-
-export interface BaseMetadata {
-    id: number | bigint;
-    active: boolean;
-    burnable: boolean;
     transferable: boolean;
 }
 
-export interface Group {
-    balance: number | bigint;
+export interface EVMAuthToken {
+    id: number | bigint;
+    config: EVMAuthTokenConfig;
+}
+
+export interface BalanceRecord {
+    amount: number | bigint;
     expiresAt: number | bigint;
 }
 
