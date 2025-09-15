@@ -8,8 +8,7 @@ import {
     keccak256,
     toHex,
 } from 'viem';
-import { evmAuth1155Abi } from '../abis/evmAuth1155.js';
-import { evmAuth6909Abi } from '../abis/evmAuth6909.js';
+import { evmAuth1155Abi, evmAuth6909Abi } from '../abis/index.js';
 
 interface DeploymentOptions {
     initialDelay?: number;
