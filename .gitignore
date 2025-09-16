@@ -46,3 +46,6 @@ next-env.d.ts
 
 # Claude
 .claude/
+
+# Test Results
+test-results.json

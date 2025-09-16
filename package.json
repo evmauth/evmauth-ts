@@ -39,6 +39,7 @@
         "format": "biome format --write .",
         "format:unsafe": "biome format --unsafe --write .",
         "test": "vitest --run",
+        "test:report": "vitest --run --reporter=json > test-results.json",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {

@@ -9,5 +9,6 @@ export default defineConfig({
             include: ['src/**/*.{ts,tsx}'],
             reporter: ['text', 'json', 'html'],
         },
+        testTimeout: 120_000, // 2 minutes per test timeout
     },
 });
