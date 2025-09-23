@@ -182,13 +182,27 @@ export class EVMAuthPublicClient extends EVMAuthBaseClient {
      */
     async transferFrom(params: TransferParams): Promise<Hash> {
         this.ensureWriteCapability();
-        const hash = await this.contract.write.safeTransferFrom([
-            params.from,
-            params.to,
-            params.tokenId,
-            params.amount,
-            params.data ?? '0x',
-        ]);
+
+        let hash: Hash;
+
+        if (this.isERC1155) {
+            // For ERC-1155, include the data parameter (default to '0x' if not provided)
+            hash = await this.contract.write.safeTransferFrom([
+                params.from,
+                params.to,
+                params.tokenId,
+                params.amount,
+                params.data ?? '0x',
+            ]);
+        } else {
+            // For ERC-6909, use the standard transfer function
+            hash = await this.contract.write.transferFrom([
+                params.from,
+                params.to,
+                params.tokenId,
+                params.amount,
+            ]);
+        }
 
         // Wait for the transaction receipt
         const receipt = await this.getTransactionReceipt(hash);
@@ -202,17 +216,19 @@ export class EVMAuthPublicClient extends EVMAuthBaseClient {
     /**
      * Transfer multiple token types
      * @param params Batch transfer parameters
-     * @returns The transaction hash (for ERC-1155) or array of hashes (for ERC-6909)
+     * @returns An array containing the transaction hash(es)
      */
-    async batchTransferFrom(params: BatchTransferParams): Promise<Hash | Hash[]> {
+    async batchTransferFrom(params: BatchTransferParams): Promise<Hash[]> {
         this.ensureWriteCapability();
 
         if (params.tokenIds.length !== params.amounts.length) {
             throw new Error('Token IDs and amounts arrays must have the same length');
         }
 
+        const hashes: Hash[] = [];
+
         // For ERC-1155, use the batch transfer function
-        if (!this.isERC1155) {
+        if (this.isERC1155) {
             const hash = await this.contract.write.safeBatchTransferFrom([
                 params.from,
                 params.to,
@@ -220,6 +236,7 @@ export class EVMAuthPublicClient extends EVMAuthBaseClient {
                 params.amounts,
                 params.data ?? '0x',
             ]);
+            hashes.push(hash);
 
             // Wait for the transaction receipt
             const receipt = await this.getTransactionReceipt(hash);
@@ -227,26 +244,19 @@ export class EVMAuthPublicClient extends EVMAuthBaseClient {
                 throw new Error('Token transfer batch transaction failed');
             }
 
-            return hash;
+            return hashes;
         }
 
         // For ERC-6909, transfer each token type individually
-        const promises: Promise<Hash>[] = [];
-        for (let i = 0; i < params.tokenIds.length; i++) {
-            promises.push(
-                this.transferFrom({
-                    from: params.from,
-                    to: params.to,
-                    tokenId: params.tokenIds[i],
-                    amount: params.amounts[i],
-                })
-            );
-        }
-        const hashes = await Promise.all(promises);
-
-        // Wait for the transaction receipts
         const receiptTxs: Promise<TransactionReceipt>[] = [];
-        for (const hash of hashes) {
+        for (let i = 0; i < params.tokenIds.length; i++) {
+            const hash = await this.transferFrom({
+                from: params.from,
+                to: params.to,
+                tokenId: params.tokenIds[i],
+                amount: params.amounts[i],
+            });
+            hashes.push(hash);
             receiptTxs.push(this.getTransactionReceipt(hash));
         }
 
@@ -273,7 +283,14 @@ export class EVMAuthPublicClient extends EVMAuthBaseClient {
      */
     async setApprovalForAll(operator: Address, approved: boolean): Promise<Hash> {
         this.ensureWriteCapability();
-        const hash = await this.contract.write.setApprovalForAll([operator, approved]);
+
+        let hash: Hash;
+
+        if (this.isERC1155) {
+            hash = await this.contract.write.setApprovalForAll([operator, approved]);
+        } else {
+            hash = await this.contract.write.setOperator([operator, approved]);
+        }
 
         // Wait for the transaction receipt
         const receipt = await this.getTransactionReceipt(hash);
@@ -291,7 +308,10 @@ export class EVMAuthPublicClient extends EVMAuthBaseClient {
      * @returns True if the operator is approved
      */
     async isApprovedForAll(account: Address, operator: Address): Promise<boolean> {
-        return (await this.contract.read.isApprovedForAll([account, operator])) as boolean;
+        if (this.isERC1155) {
+            return (await this.contract.read.isApprovedForAll([account, operator])) as boolean;
+        }
+        return (await this.contract.read.isOperator([account, operator])) as boolean;
     }
 
     /**
@@ -336,10 +356,8 @@ export class EVMAuthPublicClient extends EVMAuthBaseClient {
      * @returns True if the payment token is accepted
      */
     async isAcceptedERC20PaymentToken(tokenId: bigint, paymentToken: Address): Promise<boolean> {
-        return (await this.contract.read.isAcceptedERC20PaymentToken([
-            tokenId,
-            paymentToken,
-        ])) as boolean;
+        const token = await this.tokenERC20Prices(tokenId);
+        return token.some(({ token: address }) => address === paymentToken);
     }
 
     /**

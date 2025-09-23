@@ -557,30 +557,6 @@
     },
     {
         "type": "function",
-        "name": "isAcceptedERC20PaymentToken",
-        "inputs": [
-            {
-                "name": "id",
-                "type": "uint256",
-                "internalType": "uint256"
-            },
-            {
-                "name": "paymentToken",
-                "type": "address",
-                "internalType": "address"
-            }
-        ],
-        "outputs": [
-            {
-                "name": "",
-                "type": "bool",
-                "internalType": "bool"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
         "name": "isApprovedForAll",
         "inputs": [
             {
@@ -1516,6 +1492,31 @@
                         "internalType": "bool"
                     }
                 ]
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "ExpiredTokensPruned",
+        "inputs": [
+            {
+                "name": "from",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "id",
+                "type": "uint256",
+                "indexed": true,
+                "internalType": "uint256"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             }
         ],
         "anonymous": false

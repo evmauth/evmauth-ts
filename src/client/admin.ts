@@ -145,7 +145,7 @@ export class EVMAuthAdminClient extends EVMAuthBaseClient {
      * @param newDelay The new delay in seconds
      * @returns The transaction hash
      */
-    async changeDefaultAdminDelay(newDelay: bigint): Promise<Hash> {
+    async changeDefaultAdminDelay(newDelay: number): Promise<Hash> {
         this.ensureWriteCapability();
         const hash = await this.contract.write.changeDefaultAdminDelay([newDelay]);
 
@@ -187,24 +187,26 @@ export class EVMAuthAdminClient extends EVMAuthBaseClient {
      * Get the current default admin delay
      * @returns The delay in seconds
      */
-    async defaultAdminDelay(): Promise<bigint> {
-        return (await this.contract.read.defaultAdminDelay()) as bigint;
+    async defaultAdminDelay(): Promise<number> {
+        return (await this.contract.read.defaultAdminDelay()) as number;
     }
 
     /**
      * Get the pending default admin address and schedule
-     * @returns Tuple of [newAdmin address, schedule timestamp]
+     * @returns Object with pending admin address and schedule timestamp
      */
-    async pendingDefaultAdmin(): Promise<readonly [Address, bigint]> {
-        return (await this.contract.read.pendingDefaultAdmin()) as [Address, bigint];
+    async pendingDefaultAdmin(): Promise<{ address: Address; schedule: number }> {
+        const res = (await this.contract.read.pendingDefaultAdmin()) as [Address, number];
+        return { address: res[0], schedule: res[1] };
     }
 
     /**
      * Get the pending default admin delay
-     * @returns Tuple of [newDelay, schedule timestamp]
+     * @returns Object with pending delay and schedule timestamp
      */
-    async pendingDefaultAdminDelay(): Promise<readonly [bigint, bigint]> {
-        return (await this.contract.read.pendingDefaultAdminDelay()) as [bigint, bigint];
+    async pendingDefaultAdminDelay(): Promise<{ delay: number; schedule: number }> {
+        const res = (await this.contract.read.pendingDefaultAdminDelay()) as [number, number];
+        return { delay: res[0], schedule: res[1] };
     }
 
     /**
@@ -212,7 +214,7 @@ export class EVMAuthAdminClient extends EVMAuthBaseClient {
      * @returns The wait period in seconds
      */
     async defaultAdminDelayIncreaseWait(): Promise<bigint> {
-        return (await this.contract.read.defaultAdminDelayIncreaseWait()) as bigint;
+        return BigInt((await this.contract.read.defaultAdminDelayIncreaseWait()) as string);
     }
 
     /**

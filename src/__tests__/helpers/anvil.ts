@@ -2,6 +2,7 @@ import {
     http,
     type Account,
     type Address,
+    type GetBlockReturnType,
     type Hex,
     type PublicClient,
     type TestClient,
@@ -75,36 +76,20 @@ export class Anvil {
     }
 
     /**
-     * Increase time by seconds (Forge: vm.skip)
+     * Increase time by seconds
      */
-    async skip(seconds: number) {
-        await this.testClient.increaseTime({ seconds });
-        await this.testClient.mine({ blocks: 1 });
+    async skip(seconds: number | bigint) {
+        await this.testClient.increaseTime({ seconds: Number(seconds) });
+        const newTimestamp = (await this.publicClient.getBlock()).timestamp + BigInt(seconds);
+        await this.warp(newTimestamp);
     }
 
     /**
-     * Decrease time by seconds (Forge: vm.rewind)
-     * Note: This requires snapshot/revert in Anvil
+     * Get the latest block (Forge: block)
+     * @returns The latest block
      */
-    async rewind(seconds: number) {
-        const block = await this.publicClient.getBlock();
-        const newTimestamp = Number(block.timestamp) - seconds;
-        await this.testClient.setNextBlockTimestamp({ timestamp: BigInt(newTimestamp) });
-        await this.testClient.mine({ blocks: 1 });
-    }
-
-    /**
-     * Set block number (Forge: vm.roll)
-     * Note: Anvil doesn't support direct block number setting, so we mine the difference
-     */
-    async roll(targetBlockNumber: bigint) {
-        const currentBlock = await this.publicClient.getBlockNumber();
-        const difference = targetBlockNumber - currentBlock;
-        if (difference > 0n) {
-            await this.testClient.mine({ blocks: Number(difference) });
-        } else if (difference < 0n) {
-            throw new Error('Cannot roll to a previous block number in Anvil');
-        }
+    async block(): Promise<GetBlockReturnType> {
+        return await this.publicClient.getBlock();
     }
 
     /**
@@ -131,26 +116,6 @@ export class Anvil {
             await this.testClient.stopImpersonatingAccount({ address: this.activePrank });
             this.activePrank = null;
         }
-    }
-
-    /**
-     * Impersonate + fund with 100 ETH (Forge: vm.hoax)
-     */
-    async hoax(account: Address, amount: bigint | string = '100') {
-        const value = typeof amount === 'string' ? parseEther(amount) : amount;
-        await this.testClient.setBalance({ address: account, value });
-        await this.testClient.impersonateAccount({ address: account });
-        this.activePrank = account;
-    }
-
-    /**
-     * Start impersonation + fund (Forge: vm.startHoax)
-     */
-    async startHoax(account: Address, amount: bigint | string = '100') {
-        const value = typeof amount === 'string' ? parseEther(amount) : amount;
-        await this.testClient.setBalance({ address: account, value });
-        await this.testClient.impersonateAccount({ address: account });
-        this.activePrank = account;
     }
 
     /**
@@ -246,3 +211,5 @@ export class Anvil {
         await this.testClient.setMinGasPrice({ gasPrice });
     }
 }
+
+export const vm = new Anvil();

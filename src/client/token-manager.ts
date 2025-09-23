@@ -190,7 +190,10 @@ export class EVMAuthTokenManagerClient extends EVMAuthBaseClient {
      * @returns The token URI
      */
     async uri(tokenId: bigint): Promise<string> {
-        return (await this.contract.read.uri([tokenId])) as string;
+        if (this.isERC1155) {
+            return (await this.contract.read.uri([tokenId])) as string;
+        }
+        return (await this.contract.read.tokenURI([tokenId])) as string;
     }
 
     /**
@@ -209,9 +212,7 @@ export class EVMAuthTokenManagerClient extends EVMAuthBaseClient {
      * @returns True if the payment token is accepted
      */
     async isAcceptedERC20PaymentToken(tokenId: bigint, paymentToken: Address): Promise<boolean> {
-        return (await this.contract.read.isAcceptedERC20PaymentToken([
-            tokenId,
-            paymentToken,
-        ])) as boolean;
+        const token = await this.tokenERC20Prices(tokenId);
+        return token.some(({ token: address }) => address === paymentToken);
     }
 }

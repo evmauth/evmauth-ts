@@ -49,6 +49,14 @@ export abstract class EVMAuthBaseClient {
     }
 
     /**
+     * Fetch the transaction count (nonce) for the client's address
+     * @returns The transaction count
+     */
+    getTransactionCount(): Promise<number> {
+        return (this.client as PublicClient).getTransactionCount({ address: this.address });
+    }
+
+    /**
      * Fetch a transaction receipt by its hash
      * @param txHash The transaction hash
      * @returns The transaction receipt

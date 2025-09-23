@@ -52,7 +52,7 @@ export const deployEVMAuth = async (
 
     // Read implementation bytecode
     const bytecode = readFileSync(
-        join(process.cwd(), 'src', `${contractType}.bin`),
+        join(process.cwd(), 'src', 'bytecode', `${contractType}.bin`),
         'utf-8'
     ).trim() as `0x${string}`;
 

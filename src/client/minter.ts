@@ -42,14 +42,16 @@ export class EVMAuthMinterClient extends EVMAuthBaseClient {
     /**
      * Mint multiple token types to a specific address
      * @param params Batch minting parameters
-     * @returns The transaction hash (for ERC-1155) or array of hashes (for ERC-6909)
+     * @returns An array containing the transaction hash(es)
      */
-    async mintBatch(params: MintBatchParams): Promise<Hash | Hash[]> {
+    async mintBatch(params: MintBatchParams): Promise<Hash[]> {
         this.ensureWriteCapability();
 
         if (params.tokenIds.length !== params.amounts.length) {
             throw new Error('Token IDs and amounts arrays must have the same length');
         }
+
+        const hashes: Hash[] = [];
 
         // For ERC-1155, include the data parameter (default to '0x' if not provided)
         if (this.isERC1155) {
@@ -59,6 +61,7 @@ export class EVMAuthMinterClient extends EVMAuthBaseClient {
                 params.amounts,
                 params.data ?? '0x',
             ]);
+            hashes.push(hash);
 
             // Wait for the transaction receipt
             const receipt = await this.getTransactionReceipt(hash);
@@ -66,25 +69,18 @@ export class EVMAuthMinterClient extends EVMAuthBaseClient {
                 throw new Error('Mint batch transaction failed');
             }
 
-            return hash;
+            return hashes;
         }
 
         // For ERC-6909, mint each token type individually
-        const mintTxs: Promise<Hash>[] = [];
-        for (let i = 0; i < params.tokenIds.length; i++) {
-            mintTxs.push(
-                this.mint({
-                    to: params.to,
-                    tokenId: params.tokenIds[i],
-                    amount: params.amounts[i],
-                })
-            );
-        }
-        const hashes = await Promise.all(mintTxs);
-
-        // Wait for the transaction receipts
         const receiptTxs: Promise<TransactionReceipt>[] = [];
-        for (const hash of hashes) {
+        for (let i = 0; i < params.tokenIds.length; i++) {
+            const hash = await this.mint({
+                to: params.to,
+                tokenId: params.tokenIds[i],
+                amount: params.amounts[i],
+            });
+            hashes.push(hash);
             receiptTxs.push(this.getTransactionReceipt(hash));
         }
 

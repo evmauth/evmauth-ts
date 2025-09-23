@@ -1,4 +1,4 @@
-import type { Account, Address } from 'viem';
+import type { Account, Address, Hex } from 'viem';
 import type {
     EVMAuthAccessManagerClient,
     EVMAuthAdminClient,
@@ -11,9 +11,7 @@ import type {
 import { clients } from '../../client/index.js';
 import { roles } from '../../constants.js';
 import { deployEVMAuth } from '../../contract/index.js';
-import { Anvil } from './anvil.js';
-
-export const vm = new Anvil();
+import { vm } from './anvil.js';
 
 export class TestHarness {
     public owner = vm.makeAddr();
@@ -36,6 +34,7 @@ export class TestHarness {
 
     public contractType: 'EVMAuth1155' | 'EVMAuth6909';
     public contractAddress: Address;
+    public treasuryAddress: Address;
 
     public accessManagerClient: EVMAuthAccessManagerClient;
     public adminClient: EVMAuthAdminClient;
@@ -43,6 +42,9 @@ export class TestHarness {
     public minterClient: EVMAuthMinterClient;
     public burnerClient: EVMAuthBurnerClient;
     public treasurerClient: EVMAuthTreasurerClient;
+
+    protected snapshotId: Hex;
+    protected isInitialized: boolean;
 
     constructor(contractType: 'EVMAuth1155' | 'EVMAuth6909') {
         this.ownerWallet = vm.createWalletClient(this.owner);
@@ -54,6 +56,7 @@ export class TestHarness {
 
         this.contractType = contractType;
         this.contractAddress = '0x0' as Address;
+        this.treasuryAddress = vm.makeAddr().address;
 
         this.adminClient = {} as EVMAuthAdminClient;
         this.accessManagerClient = {} as EVMAuthAccessManagerClient;
@@ -61,9 +64,20 @@ export class TestHarness {
         this.minterClient = {} as EVMAuthMinterClient;
         this.burnerClient = {} as EVMAuthBurnerClient;
         this.treasurerClient = {} as EVMAuthTreasurerClient;
+
+        this.snapshotId = '0x0' as Hex;
+        this.isInitialized = false;
     }
 
     init = async () => {
+        // If already initialized, revert to the snapshot
+        if (this.isInitialized) {
+            await vm.revertTo(this.snapshotId);
+            // Reverting deletes the snapshot, so create a new one
+            this.snapshotId = await vm.snapshot();
+            return;
+        }
+
         // Fund all test accounts with ETH for gas
         await Promise.all([
             vm.deal(this.owner.address, '10'),
@@ -76,9 +90,9 @@ export class TestHarness {
 
         // Deploy and initialize the contract
         this.contractAddress = await deployEVMAuth(this.ownerWallet, this.contractType, {
-            initialDelay: 0, // No delay
+            initialDelay: 1, // 1 second delay for testing
             initialDefaultAdmin: this.owner.address,
-            initialTreasury: this.treasurer.address,
+            initialTreasury: this.treasuryAddress,
             roleGrants: [
                 { role: roles.UPGRADE_MANAGER_ROLE, account: this.owner.address },
                 { role: roles.ACCESS_MANAGER_ROLE, account: this.accessManager.address },
@@ -114,6 +128,10 @@ export class TestHarness {
             this.contractAddress,
             this.treasurerWallet
         );
+
+        // Take a snapshot of the current state
+        this.snapshotId = await vm.snapshot();
+        this.isInitialized = true;
     };
 
     createAdminClient(account: Account = vm.makeAddr()): EVMAuthAdminClient {

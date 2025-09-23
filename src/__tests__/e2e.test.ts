@@ -1,7 +1,9 @@
 import { parseEther } from 'viem';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { roles, tokenStandardInterfaceIds } from '../constants.js';
-import { vm, TestHarness } from './helpers/harness.js';
+import type { EVMAuthToken, PaymentToken } from '../types.js';
+import { vm } from './helpers/anvil.js';
+import { TestHarness } from './helpers/harness.js';
 
 /**
  * End-to-end tests for EVMAuth contracts, using Anvil as the local Ethereum node.
@@ -10,11 +12,14 @@ import { vm, TestHarness } from './helpers/harness.js';
  * to verify that the Clients behave as expected in a real Ethereum environment.
  */
 describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
-    describe('EVMAuthAccessManagerClient', () => {
-        it('should freeze and unfreeze an account', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
+    const t: TestHarness = new TestHarness(contractType);
 
+    beforeEach(async () => {
+        await t.init();
+    });
+
+    describe.sequential('EVMAuthAccessManagerClient', () => {
+        it('should freeze and unfreeze an account', async () => {
             // Create an account to be frozen
             const alice = vm.makeAddr();
 
@@ -40,9 +45,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should get list of frozen accounts', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create multiple accounts to be frozen
             const alice = vm.makeAddr();
             const bob = vm.makeAddr();
@@ -58,9 +60,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should pause and unpause the contract', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Initially, the contract should not be paused
             const isPausedBefore = await t.accessManagerClient.paused();
             expect(isPausedBefore, 'isPausedBefore').toBe(false);
@@ -83,9 +82,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should get freeze status constants', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Verify that the constants are valid 32-byte hex strings and are distinct
             const frozenStatus = await t.accessManagerClient.ACCOUNT_FROZEN_STATUS();
             const unfrozenStatus = await t.accessManagerClient.ACCOUNT_UNFROZEN_STATUS();
@@ -95,9 +91,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should fail when unauthorized account tries to freeze', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account that is not the access manager, and another to be frozen
             const alice = vm.makeAddr();
             const bob = vm.makeAddr();
@@ -113,9 +106,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should fail when unauthorized account tries to pause', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account that is not the access manager
             const alice = vm.makeAddr();
 
@@ -130,11 +120,8 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
     });
 
-    describe('EVMAuthAdminClient', () => {
+    describe.sequential('EVMAuthAdminClient', () => {
         it('should grant a role to an account', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account to be granted a role
             const alice = vm.makeAddr();
 
@@ -148,9 +135,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should revoke a role from an account', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account and grant it the MINTER_ROLE
             const alice = vm.makeAddr();
 
@@ -167,9 +151,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should check if account has role', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // The owner should have the DEFAULT_ADMIN_ROLE
             const hasAdminRole = await t.adminClient.hasRole(
                 roles.DEFAULT_ADMIN_ROLE,
@@ -183,9 +164,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should always return default admin', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // The admin of all roles should be DEFAULT_ADMIN_ROLE
             for (const role of Object.values(roles)) {
                 const adminRole = await t.adminClient.getRoleAdmin(role);
@@ -194,38 +172,44 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should get default admin info', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // The default admin should be the owner
             const defaultAdmin = await t.adminClient.defaultAdmin();
             expect(defaultAdmin, 'defaultAdmin').toBe(t.owner.address);
 
-            // The default admin delay should be 2 days (in seconds)
+            const oldDelay = await t.adminClient.defaultAdminDelay();
+            const newDelay = oldDelay + 100;
+            await t.adminClient.changeDefaultAdminDelay(newDelay);
+
+            const { delay: pendingDelay, schedule } =
+                await t.adminClient.pendingDefaultAdminDelay();
+            const expectedSchedule = Number((await vm.block()).timestamp) + newDelay;
+            expect(pendingDelay, 'pendingDelay').toBe(newDelay);
+            expect(schedule, 'schedule').toBe(expectedSchedule);
+
+            // Wait for the delay to pass
+            await vm.skip(expectedSchedule + 1);
+
             const defaultAdminDelay = await t.adminClient.defaultAdminDelay();
-            expect(defaultAdminDelay, 'defaultAdminDelay').toBe(24 * 60 * 60 * 2);
+            expect(defaultAdminDelay, 'defaultAdminDelay').toBe(newDelay);
         });
 
         it('should begin default admin transfer', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a new admin account
             const alice = vm.makeAddr();
 
             // Begin the admin transfer to Alice
+            const currentTime = Math.floor(Date.now() / 1000);
+            const currentDelay = await t.adminClient.defaultAdminDelay();
             const txHash = await t.adminClient.beginDefaultAdminTransfer(alice.address);
             expect(txHash, 'txHash').toMatch(/^0x[a-fA-F0-9]{64}$/);
 
             // Verify that Alice is now the pending admin
-            const [pendingAdmin] = await t.adminClient.pendingDefaultAdmin();
+            const { address: pendingAdmin, schedule } = await t.adminClient.pendingDefaultAdmin();
             expect(pendingAdmin, 'pendingAdmin').toBe(alice.address);
+            expect(schedule, 'schedule').toBeGreaterThanOrEqual(currentTime + currentDelay);
         });
 
         it('should cancel pending admin transfer', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a new admin account
             const alice = vm.makeAddr();
 
@@ -237,14 +221,11 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             expect(txHash, 'txHash').toMatch(/^0x[a-fA-F0-9]{64}$/);
 
             // Verify that there is no longer a pending admin
-            const [pendingAdmin] = await t.adminClient.pendingDefaultAdmin();
+            const { address: pendingAdmin } = await t.adminClient.pendingDefaultAdmin();
             expect(pendingAdmin, 'pendingAdmin').toBe('0x0000000000000000000000000000000000000000');
         });
 
         it('should fail when non-admin tries to grant role', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account that is not the admin
             const alice = vm.makeAddr();
 
@@ -261,11 +242,8 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
     });
 
-    describe('BurnerSDK', () => {
+    describe.sequential('EVMAuthBurnerClient', () => {
         it('should burn tokens from an address', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account and EVMAuth client to check balances
             const alice = vm.makeAddr();
             const clientSDK = t.createPublicClient(alice);
@@ -273,6 +251,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -302,9 +281,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should batch burn multiple token types', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account and EVMAuth client to check balances
             const alice = vm.makeAddr();
             const clientSDK = t.createPublicClient(alice);
@@ -312,11 +288,13 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create two tokens
             const { tokenId: tokenId1 } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
             const { tokenId: tokenId2 } = await t.tokenManagerClient.createToken({
                 price: parseEther('2'),
+                erc20Prices: [],
                 ttl: 7200n,
                 transferable: true,
             });
@@ -337,12 +315,14 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             expect(balancesBefore[1]).toBe(8n);
 
             // Burn some of Alice's tokens
-            const batchBurnTx = await t.burnerClient.burnBatch({
+            const hashes = await t.burnerClient.burnBatch({
                 from: alice.address,
                 tokenIds: [tokenId1, tokenId2],
                 amounts: [3n, 2n],
             });
-            expect(batchBurnTx, 'batchBurnTx').toMatch(/^0x[a-fA-F0-9]{64}$/);
+            for (const hash of hashes) {
+                expect(hash, 'hash').toMatch(/^0x[a-fA-F0-9]{64}$/);
+            }
 
             // Verify Alice's balances after burning
             const balancesAfter = await clientSDK.balanceOfBatch(
@@ -353,103 +333,14 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             expect(balancesAfter[1]).toBe(6n);
         });
 
-        it('should use redeem as alias for burn', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Create an account and EVMAuth client to check balances
-            const alice = vm.makeAddr();
-            const clientSDK = t.createPublicClient(alice);
-
-            // Create a token
-            const { tokenId } = await t.tokenManagerClient.createToken({
-                price: parseEther('1'),
-                ttl: 3600n,
-                transferable: true,
-            });
-
-            // Mint some tokens to Alice
-            await t.minterClient.mint({
-                to: alice.address,
-                tokenId,
-                amount: 10n,
-            });
-
-            // Verify Alice's balance before revoking
-            const balanceBefore = await clientSDK.balanceOf(alice.address, tokenId);
-            expect(balanceBefore, 'balanceBefore').toBe(10n);
-
-            // Redeem (burn) some of Alice's tokens
-            const redeemTx = await t.burnerClient.redeem(alice.address, tokenId, 2n);
-            expect(redeemTx, 'redeemTx').toMatch(/^0x[a-fA-F0-9]{64}$/);
-
-            // Verify Alice's balance after revoking
-            const balanceAfter = await clientSDK.balanceOf(alice.address, tokenId);
-            expect(balanceAfter, 'balanceAfter').toBe(8n);
-        });
-
-        it('should use redeemBatch as alias for burnBatch', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Create an account and EVMAuth client to check balances
-            const alice = vm.makeAddr();
-            const clientSDK = t.createPublicClient(alice);
-
-            // Create two tokens
-            const { tokenId: tokenId1 } = await t.tokenManagerClient.createToken({
-                price: parseEther('1'),
-                ttl: 3600n,
-                transferable: true,
-            });
-            const { tokenId: tokenId2 } = await t.tokenManagerClient.createToken({
-                price: parseEther('2'),
-                ttl: 7200n,
-                transferable: true,
-            });
-
-            // Mint some tokens to Alice
-            await t.minterClient.mintBatch({
-                to: alice.address,
-                tokenIds: [tokenId1, tokenId2],
-                amounts: [10n, 8n],
-            });
-
-            // Verify Alice's balances before revoking
-            const balancesBefore = await clientSDK.balanceOfBatch(
-                [alice.address, alice.address],
-                [tokenId1, tokenId2]
-            );
-            expect(balancesBefore[0]).toBe(10n);
-            expect(balancesBefore[1]).toBe(8n);
-
-            // Redeem (burn) some of Alice's tokens
-            const redeemBatchTx = await t.burnerClient.redeemBatch(
-                alice.address,
-                [tokenId1, tokenId2],
-                [4n, 7n]
-            );
-            expect(redeemBatchTx, 'redeemBatchTx').toMatch(/^0x[a-fA-F0-9]{64}$/);
-
-            // Verify Alice's balances after revoking
-            const balances = await clientSDK.balanceOfBatch(
-                [alice.address, alice.address],
-                [tokenId1, tokenId2]
-            );
-            expect(balances[0]).toBe(6n);
-            expect(balances[1]).toBe(1n);
-        });
-
         it('should fail burning more than balance', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account
             const alice = vm.makeAddr();
 
             // Create a token
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -472,15 +363,13 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should fail batch burn with mismatched arrays', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account
             const alice = vm.makeAddr();
 
             // Create a token
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -503,9 +392,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should fail when non-burner tries to burn', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account that is not the burner
             const alice = vm.makeAddr();
 
@@ -518,6 +404,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -540,11 +427,166 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
     });
 
-    describe('ClientSDK', () => {
-        it('should purchase tokens with native currency', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
+    describe.sequential('EVMAuthMinterClient', () => {
+        it('should mint tokens to an address', async () => {
+            // Create an account for Alice
+            const alice = vm.makeAddr();
 
+            // Create a EVMAuth client to check balances
+            const clientSDK = t.createPublicClient();
+
+            // Create a token
+            const { tokenId } = await t.tokenManagerClient.createToken({
+                price: parseEther('1'),
+                erc20Prices: [],
+                ttl: 3600n,
+                transferable: true,
+            });
+
+            // Mint some tokens to Alice
+            const mintTx = await t.minterClient.mint({
+                to: alice.address,
+                tokenId,
+                amount: 10n,
+            });
+            expect(mintTx, 'mintTx').toMatch(/^0x[a-fA-F0-9]{64}$/);
+
+            // Verify Alice's token balance
+            const balance = await clientSDK.balanceOf(alice.address, tokenId);
+            expect(balance, 'balance').toBe(10n);
+        });
+
+        it('should batch mint multiple token types', async () => {
+            // Create accounts for Alice and Bob
+            const alice = vm.makeAddr();
+
+            // Create a EVMAuth client to check balances
+            const clientSDK = t.createPublicClient();
+
+            // Create two tokens
+            const { tokenId: tokenId1 } = await t.tokenManagerClient.createToken({
+                price: parseEther('1'),
+                erc20Prices: [],
+                ttl: 3600n,
+                transferable: true,
+            });
+            const { tokenId: tokenId2 } = await t.tokenManagerClient.createToken({
+                price: parseEther('2'),
+                erc20Prices: [],
+                ttl: 7200n,
+                transferable: false,
+            });
+
+            // Batch mint tokens to Alice
+            const hashes = await t.minterClient.mintBatch({
+                to: alice.address,
+                tokenIds: [tokenId1, tokenId2],
+                amounts: [5n, 3n],
+            });
+            for (const hash of hashes) {
+                expect(hash, 'hash').toMatch(/^0x[a-fA-F0-9]{64}$/);
+            }
+
+            // Verify Alice's token balances
+            const balances = await clientSDK.balanceOfBatch(
+                [alice.address, alice.address],
+                [tokenId1, tokenId2]
+            );
+            expect(balances[0]).toBe(5n);
+            expect(balances[1]).toBe(3n);
+        });
+
+        it('should test TTL-based balance expiration', async () => {
+            // Create an account for Alice
+            const alice = vm.makeAddr();
+
+            // Create a EVMAuth client to check balances
+            const clientSDK = t.createPublicClient();
+
+            // Create a token with a TTL of 1 hour
+            const { tokenId } = await t.tokenManagerClient.createToken({
+                price: parseEther('1'),
+                erc20Prices: [],
+                ttl: 3600n, // 1 hour
+                transferable: true,
+            });
+
+            // Mint some tokens to Alice
+            await t.minterClient.mint({
+                to: alice.address,
+                tokenId,
+                amount: 10n,
+            });
+
+            // Verify Alice's balance before TTL expiration
+            const balanceBefore = await clientSDK.balanceOf(alice.address, tokenId);
+            expect(balanceBefore, 'balanceBefore').toBe(10n);
+
+            // Advance time past TTL
+            await vm.skip(3600 * 1.01 - 1); // Max expiration is TTL * 1.01 - 1 second
+
+            // Verify Alice's balance after TTL expiration
+            const balanceAfter = await clientSDK.balanceOf(alice.address, tokenId);
+            expect(balanceAfter, 'balanceAfter').toBe(0n);
+        });
+
+        it('should get default max balance records', async () => {
+            // Get the default max balance records
+            const maxRecords = await t.minterClient.DEFAULT_MAX_BALANCE_RECORDS();
+            expect(maxRecords, 'maxRecords').toBe(100n);
+        });
+
+        it('should fail batch mint with mismatched arrays', async () => {
+            // Create an account for Alice
+            const alice = vm.makeAddr();
+
+            // Create a token
+            const { tokenId } = await t.tokenManagerClient.createToken({
+                price: parseEther('1'),
+                erc20Prices: [],
+                ttl: 3600n,
+                transferable: true,
+            });
+
+            // Attempt to batch mint with mismatched tokenIds and amounts arrays
+            await expect(
+                t.minterClient.mintBatch({
+                    to: alice.address,
+                    tokenIds: [tokenId],
+                    amounts: [5n, 3n], // Mismatched length
+                })
+            ).rejects.toThrow('Token IDs and amounts arrays must have the same length');
+        });
+
+        it('should fail when non-minter tries to mint', async () => {
+            // Create an unauthorized minter SDK for Alice
+            const alice = vm.makeAddr();
+            const unauthorizedSDK = t.createMinterClient(alice);
+
+            // Fund Alice's account for gas
+            await vm.deal(alice.address, '10');
+
+            // Create a token to attempt to mint
+            const { tokenId } = await t.tokenManagerClient.createToken({
+                price: parseEther('1'),
+                erc20Prices: [],
+                ttl: 3600n,
+                transferable: true,
+            });
+
+            // Attempt to mint tokens (should fail)
+            await expect(
+                unauthorizedSDK.mint({
+                    to: alice.address,
+                    tokenId,
+                    amount: 10n,
+                })
+            ).rejects.toThrow();
+        });
+    });
+
+    describe.sequential('EVMAuthPublicClient', () => {
+        it('should purchase tokens with native currency', async () => {
             // Create a EVMAuth client for Alice
             const alice = vm.makeAddr();
             const clientSDK = t.createPublicClient(alice);
@@ -555,6 +597,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token with a price of 0.5 ETH
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('0.5'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -576,9 +619,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should purchase tokens for another address', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a EVMAuth client for Alice
             const alice = vm.makeAddr();
             const clientSDK = t.createPublicClient(alice);
@@ -592,6 +632,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token with a price of 1 ETH
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -617,9 +658,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should get token balance and batch balances', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create accounts for Alice and Bob
             const alice = vm.makeAddr();
             const bob = vm.makeAddr();
@@ -630,11 +668,13 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create two tokens
             const { tokenId: tokenId1 } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
             const { tokenId: tokenId2 } = await t.tokenManagerClient.createToken({
                 price: parseEther('2'),
+                erc20Prices: [],
                 ttl: 7200n,
                 transferable: true,
             });
@@ -665,9 +705,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should get balance records with expiration', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account for Alice
             const alice = vm.makeAddr();
 
@@ -677,6 +714,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -692,9 +730,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should check active balance', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an account for Alice
             const alice = vm.makeAddr();
 
@@ -704,6 +739,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -729,9 +765,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should transfer tokens when transferable', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create accounts for Alice and Bob
             const alice = vm.makeAddr();
             const bob = vm.makeAddr();
@@ -745,6 +778,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token that is transferable
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -769,9 +803,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should fail transfer when non-transferable', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create accounts for Alice and Bob
             const alice = vm.makeAddr();
             const bob = vm.makeAddr();
@@ -785,6 +816,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token that is non-transferable
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: false,
             });
@@ -804,9 +836,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should batch transfer multiple tokens', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create accounts for Alice and Bob
             const alice = vm.makeAddr();
             const bob = vm.makeAddr();
@@ -820,13 +849,15 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create two tokens
             const { tokenId: tokenId1 } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
             const { tokenId: tokenId2 } = await t.tokenManagerClient.createToken({
                 price: parseEther('2'),
+                erc20Prices: [],
                 ttl: 7200n,
-                transferable: false,
+                transferable: true,
             });
 
             // Mint some tokens to Alice
@@ -837,13 +868,16 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             });
 
             // Batch transfer tokens from Alice to Bob
-            const batchTransferTx = await clientSDK.batchTransferFrom({
+            const hashes = await clientSDK.batchTransferFrom({
                 from: alice.address,
                 to: bob.address,
                 tokenIds: [tokenId1, tokenId2],
                 amounts: [3n, 2n],
             });
-            expect(batchTransferTx, 'batchTransferTx').toMatch(/^0x[a-fA-F0-9]{64}$/);
+            // loop through transaction hashes and verify they are valid
+            for (const hash of hashes) {
+                expect(hash, 'txHash').toMatch(/^0x[a-fA-F0-9]{64}$/);
+            }
 
             // Verify final balances for Alice
             const aliceBalances = await clientSDK.balanceOfBatch(
@@ -863,9 +897,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should set and check operator approval', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create accounts for Alice and Bob
             const alice = vm.makeAddr();
             const bob = vm.makeAddr();
@@ -898,9 +929,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should verify frozen account cannot transfer', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create accounts for Alice and Bob
             const alice = vm.makeAddr();
             const bob = vm.makeAddr();
@@ -914,6 +942,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token that is transferable
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -948,10 +977,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             ).rejects.toThrow();
         });
 
-        it('should verify paused contract blocks operations', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
+        it('should block operations when contract is paused', async () => {
             // Create accounts for Alice and Bob
             const alice = vm.makeAddr();
             const bob = vm.makeAddr();
@@ -965,6 +991,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -1010,11 +1037,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             expect(bobBalance, 'bobBalance').toBe(1n); // 1 received
         });
 
-        // Need to run this test in sequence as it relies on time manipulation
-        it.sequential('should test TTL expiration in balance', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
+        it('should test TTL expiration in balance', async () => {
             // Create a EVMAuth client for Alice
             const alice = vm.makeAddr();
             const clientSDK = t.createPublicClient(alice);
@@ -1025,6 +1048,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token with a short TTL (30 minutes)
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 1800n, // 30 minutes
                 transferable: true,
             });
@@ -1045,15 +1069,13 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should query token metadata and info', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a EVMAuth client
             const clientSDK = t.createPublicClient();
 
             // Create a token
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1.5'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -1079,9 +1101,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should check interface support', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a EVMAuth client
             const clientSDK = t.createPublicClient();
 
@@ -1092,9 +1111,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should get contract owner', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a EVMAuth client
             const clientSDK = t.createPublicClient();
 
@@ -1104,9 +1120,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should fail purchase with insufficient funds', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a EVMAuth client for Alice
             const alice = vm.makeAddr();
             const clientSDK = t.createPublicClient(alice);
@@ -1117,6 +1130,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token with a price of 1 ETH
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -1126,291 +1140,12 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
     });
 
-    describe('MinterSDK', () => {
-        it('should mint tokens to an address', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Create an account for Alice
-            const alice = vm.makeAddr();
-
-            // Create a EVMAuth client to check balances
-            const clientSDK = t.createPublicClient();
-
-            // Create a token
-            const { tokenId } = await t.tokenManagerClient.createToken({
-                price: parseEther('1'),
-                ttl: 3600n,
-                transferable: true,
-            });
-
-            // Mint some tokens to Alice
-            const mintTx = await t.minterClient.mint({
-                to: alice.address,
-                tokenId,
-                amount: 10n,
-            });
-            expect(mintTx, 'mintTx').toMatch(/^0x[a-fA-F0-9]{64}$/);
-
-            // Verify Alice's token balance
-            const balance = await clientSDK.balanceOf(alice.address, tokenId);
-            expect(balance, 'balance').toBe(10n);
-        });
-
-        it('should batch mint multiple token types', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Create accounts for Alice and Bob
-            const alice = vm.makeAddr();
-
-            // Create a EVMAuth client to check balances
-            const clientSDK = t.createPublicClient();
-
-            // Create two tokens
-            const { tokenId: tokenId1 } = await t.tokenManagerClient.createToken({
-                price: parseEther('1'),
-                ttl: 3600n,
-                transferable: true,
-            });
-            const { tokenId: tokenId2 } = await t.tokenManagerClient.createToken({
-                price: parseEther('2'),
-                ttl: 7200n,
-                transferable: false,
-            });
-
-            // Batch mint tokens to Alice
-            const batchMintTx = await t.minterClient.mintBatch({
-                to: alice.address,
-                tokenIds: [tokenId1, tokenId2],
-                amounts: [5n, 3n],
-            });
-            expect(batchMintTx, 'batchMintTx').toMatch(/^0x[a-fA-F0-9]{64}$/);
-
-            // Verify Alice's token balances
-            const balances = await clientSDK.balanceOfBatch(
-                [alice.address, alice.address],
-                [tokenId1, tokenId2]
-            );
-            expect(balances[0]).toBe(5n);
-            expect(balances[1]).toBe(3n);
-        });
-
-        it('should use issue as alias for mint', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Create an account for Alice
-            const alice = vm.makeAddr();
-
-            // Create a EVMAuth client to check balances
-            const clientSDK = t.createPublicClient();
-
-            // Create a token
-            const { tokenId } = await t.tokenManagerClient.createToken({
-                price: parseEther('1'),
-                ttl: 3600n,
-                transferable: true,
-            });
-
-            // Issue (mint) tokens to Alice
-            await t.minterClient.issue({
-                to: alice.address,
-                tokenId,
-                amount: 10n,
-            });
-
-            // Verify Alice's token balance
-            const balance = await clientSDK.balanceOf(alice.address, tokenId);
-            expect(balance, 'balance').toBe(10n);
-        });
-
-        it('should use issueBatch as alias for mintBatch', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Create accounts for Alice and Bob
-            const alice = vm.makeAddr();
-
-            // Create a EVMAuth client to check balances
-            const clientSDK = t.createPublicClient();
-
-            // Create two tokens
-            const { tokenId: tokenId1 } = await t.tokenManagerClient.createToken({
-                price: parseEther('1'),
-                ttl: 3600n,
-                transferable: true,
-            });
-            const { tokenId: tokenId2 } = await t.tokenManagerClient.createToken({
-                price: parseEther('2'),
-                ttl: 7200n,
-                transferable: false,
-            });
-
-            // Issue (mint) multiple tokens to Alice
-            await t.minterClient.issueBatch({
-                to: alice.address,
-                tokenIds: [tokenId1, tokenId2],
-                amounts: [10n, 20n],
-            });
-
-            // Verify Alice's token balances
-            const balances = await clientSDK.balanceOfBatch(
-                [alice.address, alice.address],
-                [tokenId1, tokenId2]
-            );
-            expect(balances[0]).toBe(10n);
-            expect(balances[1]).toBe(20n);
-        });
-
-        // Need to run this test in sequence as it relies on time manipulation
-        it.sequential('should test TTL-based balance expiration', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Create an account for Alice
-            const alice = vm.makeAddr();
-
-            // Create a EVMAuth client to check balances
-            const clientSDK = t.createPublicClient();
-
-            // Create a token with a TTL of 1 hour
-            const { tokenId } = await t.tokenManagerClient.createToken({
-                price: parseEther('1'),
-                ttl: 3600n, // 1 hour
-                transferable: true,
-            });
-
-            // Mint some tokens to Alice
-            await t.minterClient.mint({
-                to: alice.address,
-                tokenId,
-                amount: 10n,
-            });
-
-            // Verify Alice's balance before TTL expiration
-            const balanceBefore = await clientSDK.balanceOf(alice.address, tokenId);
-            expect(balanceBefore, 'balanceBefore').toBe(10n);
-
-            // Advance time past TTL
-            await vm.skip(3600 * 1.01 - 1); // Max expiration is TTL * 1.01 - 1 second
-
-            // Verify Alice's balance after TTL expiration
-            const balanceAfter = await clientSDK.balanceOf(alice.address, tokenId);
-            expect(balanceAfter, 'balanceAfter').toBe(0n);
-        });
-
-        // Need to run this test in sequence as it relies on time manipulation
-        it.sequential('should prune expired balance records', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Create an account for Alice
-            const alice = vm.makeAddr();
-
-            // Create a EVMAuth client to check balances
-            const clientSDK = t.createPublicClient();
-
-            // Create a token with a TTL of 30 minutes
-            const { tokenId } = await t.tokenManagerClient.createToken({
-                price: parseEther('1'),
-                ttl: 1800n, // 30 minutes
-                transferable: true,
-            });
-
-            // Mint multiple times to create multiple balance records
-            await t.minterClient.mint({ to: alice.address, tokenId, amount: 5n });
-            await vm.skip(600); // Skip 10 minutes
-            await t.minterClient.mint({ to: alice.address, tokenId, amount: 3n });
-            await vm.skip(600); // Skip another 10 minutes
-            await t.minterClient.mint({ to: alice.address, tokenId, amount: 2n });
-
-            // Skip past first record expiry
-            await vm.skip(1800 * 1.01 - 1200); // 30 minutes * 1.01 - 20 minutes that have already passed
-
-            // Verify Alice's balance records before pruning
-            const recordsBefore = await clientSDK.balanceRecordsOf(alice.address, tokenId);
-            expect(recordsBefore.length).toBe(3);
-
-            // Call pruneBalanceRecords
-            const pruneTx = await t.minterClient.pruneBalanceRecords(alice.address, tokenId);
-            expect(pruneTx, 'pruneTx').toMatch(/^0x[a-fA-F0-9]{64}$/);
-
-            // Verify Alice's balance records after pruning
-            const recordsAfter = await clientSDK.balanceRecordsOf(alice.address, tokenId);
-            expect(recordsAfter.length).toBe(2); // The first record should be pruned
-        });
-
-        it('should get default max balance records', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Get the default max balance records
-            const maxRecords = await t.minterClient.DEFAULT_MAX_BALANCE_RECORDS();
-            expect(maxRecords, 'maxRecords').toBe(100n);
-        });
-
-        it('should fail batch mint with mismatched arrays', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Create an account for Alice
-            const alice = vm.makeAddr();
-
-            // Create a token
-            const { tokenId } = await t.tokenManagerClient.createToken({
-                price: parseEther('1'),
-                ttl: 3600n,
-                transferable: true,
-            });
-
-            // Attempt to batch mint with mismatched tokenIds and amounts arrays
-            await expect(
-                t.minterClient.mintBatch({
-                    to: alice.address,
-                    tokenIds: [tokenId],
-                    amounts: [5n, 3n], // Mismatched length
-                })
-            ).rejects.toThrow('Token IDs and amounts arrays must have the same length');
-        });
-
-        it('should fail when non-minter tries to mint', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Create an unauthorized minter SDK for Alice
-            const alice = vm.makeAddr();
-            const unauthorizedSDK = t.createMinterClient(alice);
-
-            // Fund Alice's account for gas
-            await vm.deal(alice.address, '10');
-
-            // Create a token to attempt to mint
-            const { tokenId } = await t.tokenManagerClient.createToken({
-                price: parseEther('1'),
-                ttl: 3600n,
-                transferable: true,
-            });
-
-            // Attempt to mint tokens (should fail)
-            await expect(
-                unauthorizedSDK.mint({
-                    to: alice.address,
-                    tokenId,
-                    amount: 10n,
-                })
-            ).rejects.toThrow();
-        });
-    });
-
-    describe('TokenManagerSDK', () => {
+    describe.sequential('EVMAuthTokenManagerClient', () => {
         it('should create a token and return token ID', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a token
             const { hash, tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -1423,12 +1158,10 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should create non-transferable token with price and TTL', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a non-transferable token with a TTL of 24 hours
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('0.5'),
+                erc20Prices: [],
                 ttl: 86400n, // 24 hours
                 transferable: false,
             });
@@ -1443,20 +1176,18 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should update token configuration', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a token
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
-                ttl: 3600n,
+                erc20Prices: [],
+                ttl: 3600n, // 1 hour
                 transferable: true,
             });
 
             // Update the token's price, TTL, and transferability
-            const updateTx = await t.tokenManagerClient.updateToken({
-                tokenId,
+            const updateTx = await t.tokenManagerClient.updateToken(tokenId, {
                 price: parseEther('2'),
+                erc20Prices: [],
                 ttl: 7200n,
                 transferable: false,
             });
@@ -1471,14 +1202,11 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             expect(isTransferable, 'isTransferable').toBe(false);
         });
 
-        // TODO: Update this test to be specific to the token standard
         it('should set token and base URI', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a token
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -1502,30 +1230,26 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should get token configuration', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a token with specific configuration
             const price = parseEther('1.5');
+            const erc20Prices: PaymentToken[] = [];
             const ttl = 7200n;
             const transferable = true;
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price,
+                erc20Prices,
                 ttl,
                 transferable,
             });
 
             // Retrieve and verify the token configuration
-            const config = await t.tokenManagerClient.tokenConfig(tokenId);
+            const { config }: EVMAuthToken = await t.tokenManagerClient.tokenConfig(tokenId);
             expect(config.price).toBe(price);
             expect(config.ttl).toBe(ttl);
             expect(config.transferable).toBe(transferable);
         });
 
         it('should get next token ID', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Initially, next token ID should be 1
             const nextIdBefore = await t.tokenManagerClient.nextTokenID();
             expect(nextIdBefore, 'nextIdBefore').toBe(1n);
@@ -1533,6 +1257,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token
             await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
@@ -1543,9 +1268,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should fail when non-token-manager tries to create token', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an unauthorized token manager SDK for Alice
             const alice = vm.makeAddr();
             const unauthorizedSDK = t.createTokenManagerClient(alice);
@@ -1557,6 +1279,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             await expect(
                 unauthorizedSDK.createToken({
                     price: parseEther('1'),
+                    erc20Prices: [],
                     ttl: 3600n,
                     transferable: true,
                 })
@@ -1564,13 +1287,10 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
     });
 
-    describe('TreasurerSDK', () => {
+    describe.sequential('EVMAuthTreasurerClient', () => {
         it('should set and get treasury address', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             const currentTreasury = await t.treasurerClient.treasury();
-            expect(currentTreasury, 'currentTreasury').toBe(t.treasurer.address);
+            expect(currentTreasury, 'currentTreasury').toBe(t.treasuryAddress);
 
             const newTreasury = vm.makeAddr();
             const setTx = await t.treasurerClient.setTreasury(newTreasury.address);
@@ -1580,25 +1300,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             expect(updatedTreasury, 'updatedTreasury').toBe(newTreasury.address);
         });
 
-        it('should use updateTreasury as alias for setTreasury', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
-            // Use the treasurer SDK to update the treasury address
-            const treasurerSDK = t.treasurerClient;
-            const newTreasury = vm.makeAddr();
-            const updateTx = await treasurerSDK.updateTreasury(newTreasury.address);
-            expect(updateTx, 'updateTx').toMatch(/^0x[a-fA-F0-9]{64}$/);
-
-            // Verify the treasury address was updated
-            const treasury = await t.treasurerClient.getTreasury(); // Using alias
-            expect(treasury, 'treasury').toBe(newTreasury.address);
-        });
-
         it('should send funds from purchases to treasury', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create a EVMAuth client for Alice
             const alice = vm.makeAddr();
             const clientSDK = t.createPublicClient(alice);
@@ -1609,13 +1311,14 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
             // Create a token
             const { tokenId } = await t.tokenManagerClient.createToken({
                 price: parseEther('1'),
+                erc20Prices: [],
                 ttl: 3600n,
                 transferable: true,
             });
 
             // Check treasury balance before purchase
             const treasuryBalanceBefore = await vm.publicClient.getBalance({
-                address: t.treasurer.address,
+                address: t.treasuryAddress,
             });
 
             // Purchase some tokens
@@ -1624,7 +1327,7 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
 
             // Check treasury balance after purchase
             const treasuryBalanceAfter = await vm.publicClient.getBalance({
-                address: t.treasurer.address,
+                address: t.treasuryAddress,
             });
 
             // Expect treasury balance to have increased by the purchase amount
@@ -1633,9 +1336,6 @@ describe.each(['EVMAuth1155', 'EVMAuth6909'] as const)('%s', (contractType) => {
         });
 
         it('should fail when non-treasurer tries to set treasury', async () => {
-            const t = new TestHarness(contractType);
-            await t.init();
-
             // Create an unauthorized EVMAuth client for Alice
             const alice = vm.makeAddr();
             const unauthorizedSDK = t.createTreasurerClient(alice);

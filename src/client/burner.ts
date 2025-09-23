@@ -28,14 +28,16 @@ export class EVMAuthBurnerClient extends EVMAuthBaseClient {
     /**
      * Burn multiple token types from a specific address
      * @param params Batch burning parameters
-     * @returns The transaction hash (for ERC-1155) or array of hashes (for ERC-6909)
+     * @returns An array containing the transaction hash(es)
      */
-    async burnBatch(params: BurnBatchParams): Promise<Hash | Hash[]> {
+    async burnBatch(params: BurnBatchParams): Promise<Hash[]> {
         this.ensureWriteCapability();
 
         if (params.tokenIds.length !== params.amounts.length) {
             throw new Error('Token IDs and amounts arrays must have the same length');
         }
+
+        const hashes: Hash[] = [];
 
         // For ERC-1155, use the batch burn function
         if (this.isERC1155) {
@@ -44,6 +46,7 @@ export class EVMAuthBurnerClient extends EVMAuthBaseClient {
                 params.tokenIds,
                 params.amounts,
             ]);
+            hashes.push(hash);
 
             // Wait for the transaction receipt
             const receipt = await this.getTransactionReceipt(hash);
@@ -51,25 +54,18 @@ export class EVMAuthBurnerClient extends EVMAuthBaseClient {
                 throw new Error('Burn batch transaction failed');
             }
 
-            return hash;
+            return hashes;
         }
 
         // For ERC-6909, burn each token type individually
-        const burnTxs: Promise<Hash>[] = [];
-        for (let i = 0; i < params.tokenIds.length; i++) {
-            burnTxs.push(
-                this.burn({
-                    from: params.from,
-                    tokenId: params.tokenIds[i],
-                    amount: params.amounts[i],
-                })
-            );
-        }
-        const hashes = await Promise.all(burnTxs);
-
-        // Wait for the transaction receipts
         const receiptTxs: Promise<TransactionReceipt>[] = [];
-        for (const hash of hashes) {
+        for (let i = 0; i < params.tokenIds.length; i++) {
+            const hash = await this.burn({
+                from: params.from,
+                tokenId: params.tokenIds[i],
+                amount: params.amounts[i],
+            });
+            hashes.push(hash);
             receiptTxs.push(this.getTransactionReceipt(hash));
         }
 
